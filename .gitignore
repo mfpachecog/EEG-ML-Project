@@ -1,0 +1,38 @@
+#-- python --
+__pycache__/
+*.py[cod]
+*.pyo
+*.eeg-info/
+dist/
+build/
+
+#--virtual env-- 
+.venv/
+venv/
+env/
+
+# -- IDE -- 
+
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# -- Operating System --- 
+
+.DS_Store
+Thumbs.db
+
+# -- EEG Data ---
+
+*.edf
+*.fif
+*.set
+*.mat
+
+# --- jupyter --- 
+
+.ipynb_checkpoints/
+
+# --- Misc ---
+*.log
