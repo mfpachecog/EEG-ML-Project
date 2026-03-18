@@ -1,7 +1,16 @@
 [project]
-name = "development"
+name = "eeg-ml-project"
 version = "0.1.0"
-description = "Add your description here"
+description = "Predictive system based on ML for neurological prognosis post-cardiac arrest using EEG signals"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = []
+
+
+[project.license]
+text = "MIT"
+
+[[project.authors]]
+
+name = "Manuel Pacheco"
+email = "manuelfpg012@gmail.com"
