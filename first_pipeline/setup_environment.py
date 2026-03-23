@@ -35,7 +35,9 @@ def verify_installation() -> bool:
             all_ok = False
 
     print("=" * 60)
-    print("All requirements check")
+    print("Requirements check")
+    print("="*60)
+
 
     if all_ok:
         print("Everythin is installed properly, And ready to begin")
