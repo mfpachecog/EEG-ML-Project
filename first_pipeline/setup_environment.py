@@ -40,7 +40,7 @@ def verify_installation() -> bool:
 
 
     if all_ok:
-        print("Everythin is installed properly, And ready to begin")
+        print("Everything is installed properly, And ready to begin")
         print("\nNext step start with the first patient preview")
     else:
         print("There are some libraries not installed")
