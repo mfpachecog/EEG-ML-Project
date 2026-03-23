@@ -25,6 +25,16 @@ def verify_installation() -> bool:
     print("=" * 60)
 
     all_ok = True
+    for lib, description in libraries.items():
+        try:
+            module = __import__(lib)
+            version = getattr(module, '__version__', 'N/A')
+            print(f":) {lib:15s} v{version:10s} -- {description}")
+        except ImportError:
+            print(f" :( {lib:15s} NOT INSTALLED - {description}")
+            all_ok = False
+
+            
 
 
 
