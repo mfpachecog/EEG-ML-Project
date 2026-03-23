@@ -46,6 +46,9 @@ def verify_installation() -> bool:
     print("=" * 60)
     return all_ok
 
+if __name__== "__main__":
+    verify_installation()
+
 
 
 
