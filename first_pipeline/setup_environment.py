@@ -34,7 +34,17 @@ def verify_installation() -> bool:
             print(f" :( {lib:15s} NOT INSTALLED - {description}")
             all_ok = False
 
-            
+    print("=" * 60)
+    print("All requirements check")
+
+    if all_ok:
+        print("Everythin is installed properly, And ready to begin")
+        print("\nNext step start with the first patient preview")
+    else:
+        print("There are some libraries not installed")
+
+    print("=" * 60)
+    return all_ok
 
 
 
