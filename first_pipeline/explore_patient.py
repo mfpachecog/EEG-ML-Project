@@ -47,9 +47,16 @@ def explore_patient_files(data_dir, patient_id):
     all_files = sorted(os.listdir(patient_dir))
     print(f"\nFiles founded:{len(all_files)}")
 
-    
+    #Separate files by each type. 
+    txt_files = [f for f in all_files if f.endswith('.txt')]
+    hea_files = [f for f in all_files if f.endswith('.hea')]
+    mat_files = [f for f in all_files if f.endswith('.mat')]
 
+    print(f"TXT files founded (.txt): {len(txt_files)}")
+    print(f"HEA files founded (.hea): {len(hea_files)}")
+    print(f"MAT files founded (.mat): {len(mat_files)}")
 
+    return patient_dir, hea_files, txt_files
 
 
 
