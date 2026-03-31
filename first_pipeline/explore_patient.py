@@ -22,3 +22,5 @@ DATA_DIR = "/home/singular1ty/Documents/_PROJECTS/eeg-ml-project/patients_data_r
 #patient ID from the downloaded patients
 PATIENT_ID = "0342"
 
+
+
