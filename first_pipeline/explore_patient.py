@@ -43,6 +43,10 @@ def explore_patient_files(data_dir, patient_id):
     print(f"EXPLORING PATIENT: {patient_id}")
     print("=" * 90)
 
+    #This segment will list all the files found inside the folder 
+    all_files = sorted(os.listdir(patient_dir))
+    print(f"\nFiles founded:{len(all_files)}")
+
     
 
 
