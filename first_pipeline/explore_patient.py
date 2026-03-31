@@ -37,8 +37,13 @@ def explore_patient_files(data_dir, patient_id):
         print(f"Please verify that DATA_DIR & PATIENT_ID are correct")
         print(f"Folder searched: {patient_dir}")
         sys.exit(1)
-        
 
+    #this will execute if the folder was found 
+    print("=" * 90)
+    print(f"EXPLORING PATIENT: {patient_id}")
+    print("=" * 90)
+
+    
 
 
 
