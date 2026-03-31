@@ -22,5 +22,26 @@ DATA_DIR = "/home/singular1ty/Documents/_PROJECTS/eeg-ml-project/patients_data_r
 #patient ID from the downloaded patients
 PATIENT_ID = "0342"
 
+"""
+==========================================================================================
+FIRST STEP: UNDERSTAND THE STRUCTURE OF THE PATIENT FILES
+==========================================================================================
+"""
+def explore_patient_files(data_dir, patient_id):
+
+    patient_dir = os.path.join(data_dir, patient_id)
+
+    #if segment in the case the folder is not found
+    if not os.path.exists(patient_dir):
+        print(f"X ERROR: the folder {patient_dir} was not found")
+        print(f"Please verify that DATA_DIR & PATIENT_ID are correct")
+        print(f"Folder searched: {patient_dir}")
+        sys.exit(1)
+        
+
+
+
+
+
 
 
