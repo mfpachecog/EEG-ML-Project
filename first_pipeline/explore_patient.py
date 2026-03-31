@@ -58,6 +58,7 @@ def explore_patient_files(data_dir, patient_id):
 
     return patient_dir, hea_files, txt_files
 
+explore_patient_files(DATA_DIR, PATIENT_ID)
 
 
 
