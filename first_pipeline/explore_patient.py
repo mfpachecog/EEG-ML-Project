@@ -59,7 +59,7 @@ def explore_patient_files(data_dir, patient_id):
     print(f"HEA files founded (.hea): {len(hea_files)}")
     print(f"MAT files founded (.mat): {len(mat_files)}")
 
-    return patient_dir, hea_files, txt_files
+    return patient_dir , hea_files, txt_files
 
 """
 ========================================================================================
@@ -107,7 +107,8 @@ def read_patient_metadata(patient_dir, patient_id):
 
         return metadata
 
-read_patient_metadata(explore_patient_files(DATA_DIR, PATIENT_ID), PATIENT_ID )
+patient_dir, hea_files, txt_files = explore_patient_files(DATA_DIR, PATIENT_ID)
+read_patient_metadata(patient_dir, PATIENT_ID)
 
 
 
