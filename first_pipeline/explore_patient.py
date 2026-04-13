@@ -107,6 +107,7 @@ def read_patient_metadata(patient_dir, patient_id):
 
         return metadata
 
+read_patient_metadata(explore_patient_files(DATA_DIR, PATIENT_ID), PATIENT_ID )
 
 
 
