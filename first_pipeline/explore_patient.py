@@ -121,6 +121,8 @@ def read_eeg_segment(patient_dir, hea_files):
         print("FILES .HEA NOT FOUND FOR THIS PATIENT")
         return None, None
     
+    eeg_hea_files = [f for f in hea_files if 'EEG' in f.upper() or '_eeg' in f.lower()]
+
 
 
 
