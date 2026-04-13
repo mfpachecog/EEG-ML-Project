@@ -129,6 +129,10 @@ def read_eeg_segment(patient_dir, hea_files):
         eeg_hea_files = hea_files
     
 
+    #sorting files to get the first temporal segment
+    eeg_hea_files.sort()
+    first_file = eeg_hea_files[0]
+
 
 
 
