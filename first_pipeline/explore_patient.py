@@ -137,6 +137,19 @@ def read_eeg_segment(patient_dir, hea_files):
     record_path = os.path.join(patient_dir, record_name)
 
 
+    print(f"\n{'='*70}")
+    print(f"READING EEG SEGMENT: {record_name}")
+    print(f"{'='*70}")
+
+    try:
+        #wfdb.rdrecord() will look for the files and read the .hea and .mat at once
+        record = wfdb.rdrecord(record_path)
+    except Exception as e:
+        print(f"ERROR WHILE READING THE FILE: {e}")
+        print(f"    TRIED PATH: {record_path}")
+        return None, None
+
+
 
 
 
