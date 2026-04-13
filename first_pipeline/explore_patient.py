@@ -107,8 +107,22 @@ def read_patient_metadata(patient_dir, patient_id):
 
         return metadata
 
-patient_dir, hea_files, txt_files = explore_patient_files(DATA_DIR, PATIENT_ID)
-read_patient_metadata(patient_dir, PATIENT_ID)
+"""
+THIRD STEP READ A EEG SIGNAL SEGMENT
+
+What we will do on this function is open a wfdb file that is the format created by physionet and not .edf
+
+"""
+
+def read_eeg_segment(patient_dir, hea_files):
+
+    # verification of .hea files in patient dir
+    if not hea_files:
+        print("FILES .HEA NOT FOUND FOR THIS PATIENT")
+        return None, None
+    
+
+
 
 
 
