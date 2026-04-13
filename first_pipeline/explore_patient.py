@@ -121,10 +121,13 @@ def read_eeg_segment(patient_dir, hea_files):
         print("FILES .HEA NOT FOUND FOR THIS PATIENT")
         return None, None
     
+    #filering hea files to contain ONLY EEG files
     eeg_hea_files = [f for f in hea_files if 'EEG' in f.upper() or '_eeg' in f.lower()]
 
-
-
+    #case scenario where there's not EEG files in patient dir, take all the other .hea files
+    if not eeg_hea_files:
+        eeg_hea_files = hea_files
+    
 
 
 
