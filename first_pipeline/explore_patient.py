@@ -25,6 +25,9 @@ PATIENT_ID = "0342"
 """
 ==========================================================================================
 FIRST STEP: UNDERSTAND THE STRUCTURE OF THE PATIENT FILES
+
+This script is function is just a comprobation, what it will do is confirm that the path to the 
+patient data is well confiured and confirm all the files resides inside a single patient
 ==========================================================================================
 """
 def explore_patient_files(data_dir, patient_id):
@@ -58,7 +61,40 @@ def explore_patient_files(data_dir, patient_id):
 
     return patient_dir, hea_files, txt_files
 
-explore_patient_files(DATA_DIR, PATIENT_ID)
+"""
+========================================================================================
+STEP 2: READING THE PATIENT CLINIC METADATA 
+
+This script will read the .txt file of the patient and understand it.
+========================================================================================
+"""
+
+def read_patient_metadata(patient_dir, patient_id):
+
+    metadata_path = os.path.join(patient_dir, f"{patient_id}.txt")
+
+    if not os.path.exists(metadata_path):
+        print(f"METADATA FILE NOT FOUND: {metadata_path}")
+        return None
+    
+    metadata = {}
+    print(f"\n{'='*70}")
+    print("PATIENT CLINIC METADATA")
+    print(f"\n{'='*70}")
+
+    with open(metadata_path, 'r') as f:
+        for line in f:
+            line = line.strip()
+            if ':' in line:
+                #this creates the dict extracting the patients data, as the file has the format "data:value"
+                key, value = line.split(':', 1)
+                key = key.strip()
+                value = value.strip()
+                metadata[key] = value
+                print(f" {key:20s}: {value}")
+    
+
+
 
 
 
