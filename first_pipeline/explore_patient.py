@@ -128,10 +128,15 @@ def read_eeg_segment(patient_dir, hea_files):
     if not eeg_hea_files:
         eeg_hea_files = hea_files
     
-
     #sorting files to get the first temporal segment
     eeg_hea_files.sort()
     first_file = eeg_hea_files[0]
+
+    #we separate teh .hea extension for the future wfdb creation
+    record_name = first_file.replace('.hea', '')
+    record_path = os.path.join(patient_dir, record_name)
+
+
 
 
 
