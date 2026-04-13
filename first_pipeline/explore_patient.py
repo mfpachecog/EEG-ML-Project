@@ -93,6 +93,20 @@ def read_patient_metadata(patient_dir, patient_id):
                 metadata[key] = value
                 print(f" {key:20s}: {value}")
     
+    #now it's important to interpret the information forthe future model
+
+    if 'Outcome' in metadata or 'CPC' in metadata:
+        cpc_key = 'CPC' if 'CPC' in metadata else 'Outcome'
+        try:
+            cpc = int(metadata[cpc_key])
+            outcome = "GOOD" if cpc <= 2 else "POOR"
+            print(f"\n -> For the binary model: {outcome}")
+            print(f"    CPC {cpc} -> Tag = {1 if cpc <= 2 else 0}")
+        except ValueError:
+            print(f"\n CPC IS NOT A NUMERIC VALUE: {metadata[cpc_key]}")
+
+        return metadata
+
 
 
 
