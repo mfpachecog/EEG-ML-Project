@@ -149,6 +149,56 @@ def read_eeg_segment(patient_dir, hea_files):
         print(f"    TRIED PATH: {record_path}")
         return None, None
 
+    #extract information from header
+    print(f"\n Technical information from registry: ")
+    print(f"    {'='*50}")
+    print(f"    Registry name: {record.record_name}")
+    print(f"    Sampling rate: {record.fs} Hz")
+    print(f"    Channel numbers: {record.n_sig}")
+    print(f"    Sample numbers: {record.sig_len}")
+    print(f"    Duration: {record.sig_len / record.fs:.1f} seconds"
+          f"({record.sig_len / record.fs / 60:.1f} minutes)")
+    print(f"    Channel names: {record.sig_name}")
+    print(f"    Units: {record.units}")
+
+    # signal is in record.p_signal (physical signal)
+    #shape: (n_samples, n_channels) - each column is a channel
+
+    signal = record.p_signal
+    print(f"\n Signal matrix shape: {signal.shape}")
+    print(f" This means: {signal.shape[0]} samples X {signal.shape[1]} channels")
+
+    #Basic signal statistics 
+
+    print(f"\n Signal Statistics (from all the channels):")
+    print(f" {'-'*50}")
+    print(f"    Minimun :   {np.nanmin(signal):>10.2f} µV")
+    print(f"    Maximun :   {np.nanmax(signal):>10.2f} µV")
+    print(f"    Mean    :   {np.nanmean(signal):>10.2f} µV")
+    print(f"    Standard Deviation  :   {np.nanstd(signal):>10.2f}")
+
+    #Detecting channels with problems (NaN or constant values)
+    print(f"\n Quality per signal: ")
+    print(f"    {'-'*50}")
+    for i, ch_name in enumerate(record.sig_name):
+        ch_data = signal[:, i]
+        n_nan = np.isnan(ch_data).sum()
+        pct_nan = (n_nan / len(ch_data)) * 100
+
+        if n_nan == len(ch_data):
+            status = "ALL NaN (CHANNEL DISCONNECTED)"
+        elif n_nan > 0:
+            status = f"WARNING {pct_nan:.1f}% NaN"
+        elif np.std(ch_data) < 0.001:
+            status = "WARNING Plain Signal (Possible Disconection)"
+        else:
+            status = f"OK (std={np.nanstd(ch_data):.2f} µV)"
+
+        print(f"    {ch_name:8s}:{status}")
+    return record, signal
+
+patient_directory, hea_files_ext, txt_files_ext = explore_patient_files(DATA_DIR, PATIENT_ID)
+read_eeg_segment(patient_directory, hea_files_ext)
 
 
 
