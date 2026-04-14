@@ -241,7 +241,68 @@ def plot_raw_eeg(record, signal, duration_seconds=10):
 
     n_channels = len(eeg_index)
     print(f"\n Visualizing {n_channels} Channels EEg, first {duration_seconds}s")
+
+    #creating the figure 
+    #standerd form of visualizing EEG signals. 
+
+    fig, ax = plt.subplots(1, 1, figsize=(14, max(8, n_channels * 0.06)))
+
+    #Calculate the offset between signals
+    #As we want the signals not to be overlapping.
+
+    offsets = []
+    spacing = 0
+
+    for idx, ch_idx in enumerate(eeg_index):
+        ch_data = signal[:n_samples, ch_idx]
+
+        #replace NaN with 0 for visualization 
+        ch_data = np.nan_to_num(ch_data, nan=0.0)
+
+        #Calculate offset based on the real channel amplitude
+        ch_std = np.std(ch_data)
+        if ch_std < 0.001:
+            ch_std = 50
+        
+        if idx > 0:
+            spacing += max(ch_std * 4, 100)
+
+        offsets.append(spacing)
+
+        #Draw the channel with its offset
+        ax.plot(time, ch_data + spacing, linewidth=0.5, color='#2c3e50', alpha=0.8)
     
+    #configure the Y axis with channel names
+    ax.set_yticks(offsets)
+    ax.set_yticklabels(eeg_names, fontsize=9)
+
+    #axis configuration
+    ax.set_xlabel('Time(seconds)', fontsize=12)
+    ax.set_title(f'Crude EEG signal - Patient {record.record_name}'
+                 f'(fs= {record.fs} Hz, {n_channels} channels)', 
+                 fontsize=13, fontweight='bold')
+    ax.set_xlim(0, duration_seconds)
+
+    #add amplitude scale (100 micro volts) as this is the standard for clinic EEg, a vertical bar that indicates
+    #how many microvolts represent certain vertical distance in the graphic.
+
+    scale_x = duration_seconds * 0.95
+    scale_y = offsets[0] - 150 if offsets else 0
+    ax.plot([scale_x, scale_x], [scale_y, scale_y + 100], linewidth=2, color='red', alpha=0.8)
+    ax.text(scale_x + 0.1, scale_y + 50, '100 µV', fontsize=8, color='red', va='center')
+
+    #Grid for temporal reference
+    ax.grid(True, axis='x', alpha=0.3, linestyle='--')
+    ax.spines['Top'].set_visible(False)
+    ax.spinest['right'].set_visible(False)
+
+    plt.tight_layout()
+
+    #KEEP THE GRAPH
+    output_path = f"eeg_raw_{record.record_name}.png"
+    plt.savefig(output_path, dpi=150, bbox_inches='tight')
+    print(f"\n Graphic kept on: {output_path}")
+    plt.show()
 
 
 
