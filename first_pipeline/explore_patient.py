@@ -20,7 +20,7 @@ import matplotlib.pyplot as plt
 DATA_DIR = "/home/singular1ty/Documents/_PROJECTS/eeg-ml-project/patients_data_raw/physionet.org/files/i-care/2.1/training"
 
 #patient ID from the downloaded patients
-PATIENT_ID = "0342"
+PATIENT_ID = "0284"
 
 """
 ==========================================================================================
