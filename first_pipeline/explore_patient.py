@@ -199,8 +199,10 @@ def read_eeg_segment(patient_dir, hea_files):
     return record, signal
 
 """
+========================================================================================
 STEP 4: VISUALIZING CRUDE EEG SIGNAL
 function to visualize the first secons of the Crude signal
+========================================================================================
 """
 
 def plot_raw_eeg(record, signal, duration_seconds=10):
@@ -304,8 +306,30 @@ def plot_raw_eeg(record, signal, duration_seconds=10):
     print(f"\n Graphic kept on: {output_path}")
     plt.show()
 
+"""
+========================================================================================
+MAIN EXECUTION
+========================================================================================
+"""
 
+if __name__ == '__main__':
 
+    #STEP 1: EXPLORE PATIENT DATA 
+    patient_dir, hea_files, txt_files = explore_patient_files(DATA_DIR, PATIENT_ID)
+
+    #step 2: read clinic metadata 
+    metadata = read_patient_metadata(patient_dir, PATIENT_ID)
+
+    #step 3: read first EEG segment
+    record, signal = read_eeg_segment(patient_dir, hea_files)
+
+    #step 4: signal graphic visualization
+    if record is not None:
+        plot_raw_eeg(record, signal, duration_seconds=10)
+
+        print("========================================================================================")
+        print("THATS ALL FOLKS")
+        print("========================================================================================")
 
 
 
