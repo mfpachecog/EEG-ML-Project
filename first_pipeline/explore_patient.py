@@ -108,10 +108,11 @@ def read_patient_metadata(patient_dir, patient_id):
         return metadata
 
 """
+========================================================================================
 THIRD STEP READ A EEG SIGNAL SEGMENT
 
 What we will do on this function is open a wfdb file that is the format created by physionet and not .edf
-
+========================================================================================
 """
 
 def read_eeg_segment(patient_dir, hea_files):
@@ -197,8 +198,17 @@ def read_eeg_segment(patient_dir, hea_files):
         print(f"    {ch_name:8s}:{status}")
     return record, signal
 
-patient_directory, hea_files_ext, txt_files_ext = explore_patient_files(DATA_DIR, PATIENT_ID)
-read_eeg_segment(patient_directory, hea_files_ext)
+"""
+STEP 4: VISUALIZING CRUDE EEG SIGNAL
+function to visualize the first secons of the Crude signal
+"""
+
+def plot_raw_eeg(record, signal, duration_seconds=10):
+
+    if record is None or signal is None:
+        print("THERE IS NO DATA TO VISUALIZE")
+        return
+    
 
 
 
