@@ -221,6 +221,28 @@ def plot_raw_eeg(record, signal, duration_seconds=10):
     #tipical EEG channels
     eeg_channel_names = ['Fp1','Fp2','F7','F8','F3','F4','T3', 'T4', 'C3', 'C4', 'T5', 'T6', 'P3'
                          ,'P4','01','02','Fz','Cz','Pz','Fpz','Oz','T7','T8','P7','P8','F9','F10' ]
+    
+    #find what EEG channels are present 
+
+    eeg_index = []
+    eeg_names = []
+
+    for i, name in enumerate(record.sig_name):
+        #check if it is a known EEG channel 
+        if any(eeg_name.lower() == name.lower() for eeg_name in eeg_channel_names):
+            #check that the channel has valid data
+            if not np.all(np.isnan(signal[:n_samples, i])):
+                eeg_index.append(i)
+                eeg_names.append(name)
+    if not eeg_index:
+        print("NO STANDARD EEG CHANNELS FOUND. SHOWING ALL CHANNELS")
+        eeg_index = list(range(min(signal.shape[1], 19)))
+        eeg_names = [record.sig_name[i] for i in eeg_index]
+    
+
+
+
+
 
 
 
