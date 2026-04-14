@@ -217,6 +217,11 @@ def plot_raw_eeg(record, signal, duration_seconds=10):
 
     time = np.arange(n_samples) / fs
 
+    #choose only EEG channels and avoid ECG, EMG, EOG
+    #tipical EEG channels
+    eeg_channel_names = ['Fp1','Fp2','F7','F8','F3','F4','T3', 'T4', 'C3', 'C4', 'T5', 'T6', 'P3'
+                         ,'P4','01','02','Fz','Cz','Pz','Fpz','Oz','T7','T8','P7','P8','F9','F10' ]
+
 
 
 
