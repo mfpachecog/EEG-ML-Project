@@ -238,8 +238,10 @@ def plot_raw_eeg(record, signal, duration_seconds=10):
         print("NO STANDARD EEG CHANNELS FOUND. SHOWING ALL CHANNELS")
         eeg_index = list(range(min(signal.shape[1], 19)))
         eeg_names = [record.sig_name[i] for i in eeg_index]
-    
 
+    n_channels = len(eeg_index)
+    print(f"\n Visualizing {n_channels} Channels EEg, first {duration_seconds}s")
+    
 
 
 
