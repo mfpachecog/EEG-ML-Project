@@ -20,7 +20,7 @@ import matplotlib.pyplot as plt
 DATA_DIR = "/home/singular1ty/Documents/_PROJECTS/eeg-ml-project/patients_data_raw/physionet.org/files/i-care/2.1/training"
 
 #patient ID from the downloaded patients
-PATIENT_ID = "0463"
+PATIENT_ID = "0311"
 
 """
 ==========================================================================================
@@ -248,7 +248,7 @@ def plot_raw_eeg(record, signal, duration_seconds=10):
     #creating the figure 
     #standerd form of visualizing EEG signals. 
 
-    fig, ax = plt.subplots(1, 1, figsize=(14, max(8, n_channels * 0.06)))
+    fig, ax = plt.subplots(1, 1, figsize=(14, max(8, n_channels * 0.6)))
 
     #Calculate the offset between signals
     #As we want the signals not to be overlapping.
