@@ -297,7 +297,7 @@ def plot_raw_eeg(record, signal, duration_seconds=10):
     #Grid for temporal reference
     ax.grid(True, axis='x', alpha=0.3, linestyle='--')
     ax.spines['top'].set_visible(False)
-    ax.spinest['right'].set_visible(False)
+    ax.spines['right'].set_visible(False)
 
     plt.tight_layout()
 
