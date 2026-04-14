@@ -208,7 +208,14 @@ def plot_raw_eeg(record, signal, duration_seconds=10):
     if record is None or signal is None:
         print("THERE IS NO DATA TO VISUALIZE")
         return
-    
+
+    fs = record.fs #sampling rate
+    n_samples = int(duration_seconds * fs) #how many samples show
+
+    #limit to what we have available
+    n_samples = min(n_samples, signal.shape[0])
+
+    time = np.arange(n_samples) / fs
 
 
 
