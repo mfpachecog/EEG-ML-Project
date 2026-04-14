@@ -236,6 +236,7 @@ def plot_raw_eeg(record, signal, duration_seconds=10):
             if not np.all(np.isnan(signal[:n_samples, i])):
                 eeg_index.append(i)
                 eeg_names.append(name)
+
     if not eeg_index:
         print("NO STANDARD EEG CHANNELS FOUND. SHOWING ALL CHANNELS")
         eeg_index = list(range(min(signal.shape[1], 19)))
@@ -295,7 +296,7 @@ def plot_raw_eeg(record, signal, duration_seconds=10):
 
     #Grid for temporal reference
     ax.grid(True, axis='x', alpha=0.3, linestyle='--')
-    ax.spines['Top'].set_visible(False)
+    ax.spines['top'].set_visible(False)
     ax.spinest['right'].set_visible(False)
 
     plt.tight_layout()
