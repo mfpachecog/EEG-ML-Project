@@ -22,3 +22,6 @@ import wfdb
 import numpy as np
 import pandas as pd
 
+DATA_DIR = "/home/singular1ty/Documents/_PROJECTS/eeg-ml-project/patients_data_raw/physionet.org/files/i-care/2.1/training"
+
+
