@@ -64,4 +64,15 @@ def inventory_single_patient(data_dir, patient_id):
             patient_info['binary_outcome'] = None
             patient_info['outcome_label'] = 'Unknown'
     
+    # PART 2: EEG TECHNICAL INFORMATION
     
+    #first we have to count all the available EEG segments
+    all_files = os.listdir(patient_dir)
+    hea_files = sorted([f for f in all_files if f.endswith('.hea')])
+    eeg_hea_files = [f for f in hea_files if 'EEG' in f.upper()]
+
+    patient_info['n_eeg_segments'] = len(eeg_hea_files)
+    patient_info['n_total_files'] = len(all_files)
+
+    
+
