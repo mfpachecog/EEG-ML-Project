@@ -97,3 +97,8 @@ def inventory_single_patient(data_dir, patient_id):
         patient_info['max_hour'] = None
         patient_info['n_unique_hours'] = 0
 
+    #read the **first segment** to obtain sampling rate and the channels information
+    if eeg_hea_files:
+        first_record_name = eeg_hea_files[0].replace('.hea', '')
+        first_record_path = os.path.join(patient_dir, first_record_name)
+        
