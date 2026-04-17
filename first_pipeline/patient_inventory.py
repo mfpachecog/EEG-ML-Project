@@ -49,3 +49,19 @@ def inventory_single_patient(data_dir, patient_id):
     else:
         print(f"WARNING {patient_id} METADATA FILE **NOT** FOUND")
         return patient_info
+    
+    #now create the binary tag for the model
+    #cpc 1-2: good(1), cpc 3-5: poor(0)
+    cpc_value = patient_info.get('cpc', None)
+    if cpc_value is not None:
+        try:
+            cpc_num = int(cpc_value)
+            patient_info['cpc_numeric'] = cpc_num
+            patient_info['binary_outcome'] = 1 if cpc_num <= 2 else 0
+            patient_info['outcome_label'] = 'good' if cpc_num <= 2 else 'poor'
+        except ValueError:
+            patient_info['cpc_numeric'] = None
+            patient_info['binary_outcome'] = None
+            patient_info['outcome_label'] = 'Unknown'
+    
+    
