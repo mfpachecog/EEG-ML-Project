@@ -26,7 +26,7 @@ DATA_DIR = "/home/singular1ty/Documents/_PROJECTS/eeg-ml-project/patients_data_r
 
 #MAIN FUNCTION ORGANIZE A SINGLE PATIENT 
 
-def inventory_single_patient(data_dir, patient_id):
+def inventory_single_patient(data_dir:str, patient_id:str) -> dict:
 
     """This script will extract the data from a single patient and create a dictionary with 
     the clinic metadata, technical EEG information & the binary tag (0 | 1) for the model"""
@@ -101,4 +101,20 @@ def inventory_single_patient(data_dir, patient_id):
     if eeg_hea_files:
         first_record_name = eeg_hea_files[0].replace('.hea', '')
         first_record_path = os.path.join(patient_dir, first_record_name)
-        
+
+        try:
+            #We use the method .rdheader to read only the header file, and make the process quicker
+            #with this we don't load the WHOLE signal and it is faster than rdrecord()
+            header = wfdb.rdheader(first_record_path)
+            patient_info['sampling rate'] = header.fs
+            patient_info['n_channles'] = header.n_sig
+            patient_info['channel_names'] = header.sig_name
+            patient_info['segment_duration_sec'] = header.sig_len / header.fs
+        except Exception as e:
+            print(f" WARNING {patient_id} error reading the header: {e}")
+            patient_info['sampling rate'] = None
+            patient_info['n_channles'] = None
+    
+    return patient_info
+
+
