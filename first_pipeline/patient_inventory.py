@@ -85,5 +85,15 @@ def inventory_single_patient(data_dir, patient_id):
                 hours_available.append(hour)
             except ValueError:
                 pass
-            
+    
+    if hours_available:
+        patient_info['hours_available'] = sorted(set(hours_available))
+        patient_info['min_hour'] = min(hours_available)
+        patient_info['max_hour'] = max(hours_available)
+        patient_info['n_unique_hours'] = len(set(hours_available))
+    else:
+        patient_info['hours_available'] = []
+        patient_info['min_hour'] = None
+        patient_info['max_hour'] = None
+        patient_info['n_unique_hours'] = 0
 
