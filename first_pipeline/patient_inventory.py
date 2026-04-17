@@ -34,4 +34,7 @@ def inventory_single_patient(data_dir, patient_id):
     patient_dir = os.path.join(data_dir, patient_id)
     patient_info = {'patient_id': patient_id}
 
+    # PART 1: CLINIC METADATA
+    metadata_path = os.path.join(patient_dir, f"{patient_id}.txt")
+
     
