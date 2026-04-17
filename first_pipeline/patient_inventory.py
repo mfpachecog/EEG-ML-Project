@@ -37,4 +37,15 @@ def inventory_single_patient(data_dir, patient_id):
     # PART 1: CLINIC METADATA
     metadata_path = os.path.join(patient_dir, f"{patient_id}.txt")
 
-    
+    if os.path.exists(metadata_path):
+        with open(metadata_path, 'r') as f:
+            for line in f:
+                line = line.strip()
+                if ':' in line:
+                    key, value = line.split(':', 1)
+                    key = key.strip()
+                    value = value.strip()
+                    patient_info[key.lower().replace(' ', '_')] = value
+    else:
+        print(f"WARNING {patient_id} METADATA FILE **NOT** FOUND")
+        return patient_info
