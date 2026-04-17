@@ -74,5 +74,16 @@ def inventory_single_patient(data_dir, patient_id):
     patient_info['n_eeg_segments'] = len(eeg_hea_files)
     patient_info['n_total_files'] = len(all_files)
 
-    
+    #Now we have to extract the available hours from the file names
+    #format: {patient_id}_{segment}_{hour}_EEG.hea
+    hours_available = []
+    for f in eeg_hea_files:
+        parts = f.replace('hea', '').split('_')
+        if len(parts) >= 3:
+            try:
+                hour = int(parts[2])
+                hours_available.append(hour)
+            except ValueError:
+                pass
+            
 
