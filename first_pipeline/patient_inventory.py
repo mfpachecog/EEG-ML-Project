@@ -24,4 +24,14 @@ import pandas as pd
 
 DATA_DIR = "/home/singular1ty/Documents/_PROJECTS/eeg-ml-project/patients_data_raw/physionet.org/files/i-care/2.1/training"
 
+#MAIN FUNCTION ORGANIZE A SINGLE PATIENT 
 
+def inventory_single_patient(data_dir, patient_id):
+
+    """This script will extract the data from a single patient and create a dictionary with 
+    the clinic metadata, technical EEG information & the binary tag (0 | 1) for the model"""
+
+    patient_dir = os.path.join(data_dir, patient_id)
+    patient_info = {'patient_id': patient_id}
+
+    
