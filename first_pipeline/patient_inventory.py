@@ -174,7 +174,7 @@ def generate_report(all_patients):
             'cpc': p.get('cpc_numeric'),
             'outcome' :p.get('outcome_label'),
             'binary_label' :p.get('binary_outcome'),
-            'shockable_rythm': p.get('shockable_rhythm'),
+            'shockable_rhythm': p.get('shockable_rhythm'),
             'ohca': p.get('ohca'),
             'ttm': p.get('ttm'),
             'rosc' : p.get('rosc'),
