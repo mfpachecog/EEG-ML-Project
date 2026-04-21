@@ -117,4 +117,15 @@ def inventory_single_patient(data_dir:str, patient_id:str) -> dict:
     
     return patient_info
 
+"""
+CREATE PATIENTS INVENTORY FUNCTION 
+
+This function will search all the patient folders, and create the inventory
+"""
+
+def inventory_all_patients(data_dir):
+
+    #start detecting the patients folders (numeric folders)
+    all_items = sorted(os.listdir(data_dir))
+    patient_ids = [d for d in all_items if os.path.isdir(os.path.join(data_dir, d)) and d.isdigit()]
 
