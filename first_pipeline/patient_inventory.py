@@ -154,3 +154,41 @@ def inventory_all_patients(data_dir):
               f"| {n_seg} segments"
               f"| {n_hours} hours")
     return all_patients, patient_ids
+
+"""
+FUNCTION TO CREATE PATIENTS RESUME, AND THE REPORT.
+"""
+
+def generate_report(all_patients):
+    #Generate a table resume from inventory, and store it as CSV.
+
+    #first create dataframe with most important columns
+    summary_data = []
+
+    for p in all_patients:
+        row = {
+            'patient_id': p.get('patient_id'),
+            'hospital': p.get('hospital'),
+            'age': p.get('age'),
+            'sex': p.get('sex'),
+            'cpc': p.get('cpc_numeric'),
+            'outcome' :p.get('outcome_label'),
+            'binary_label' :p.get('binary_outcome'),
+            'shockable_rythm': p.get('shockable_rhythm'),
+            'ohca': p.get('ohca'),
+            'ttm': p.get('ttm'),
+            'rosc' : p.get('rosc'),
+            'sampling_rate_hz' : p.get('sampling_rate'),
+            'n_channels' : p.get('n_channels'),
+            'n_eeg_segments' : p.get('n_eeg_segments'),
+            'n_unique_hours' : p.get('n_unique_hours'),
+            'min_hour' : p.get('min_hour'),
+            'max_hour' : p.get('max_hour'),
+            'units' : p.get('units')
+        }
+        summary_data.append(row)
+
+    df = pd.DataFrame(summary_data)
+
+    
+
