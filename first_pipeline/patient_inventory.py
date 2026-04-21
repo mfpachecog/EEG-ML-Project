@@ -246,4 +246,14 @@ def generate_report(all_patients):
         print(f"    MAXIMUM HOUR REGISTERED: {df['max_hour'].max()}")
         print(f"    MEDIAN HOURS PER PATIENT: {df['n_unique_hours'].median():.0f}")
 
+    #DEMOGRAPHIC DATA 
+    print("\n DEMOGRAPHICS")
+    print("-" * 50)
+    if 'age' in df.columns:
+        ages = pd.to_numeric(df['age'], errors='coerce')
+        print(f" AGE - MEAN: {ages.mean():.1f}, RANGE: {ages.min():.0f}-{ages.max():.0f}")
+    if 'sex' in df.columns:
+        sex_counts = df['sex'].value_counts()
+        for sex, count in sex_counts.items():
+            print(f"    {sex}: {count} PATIENTS")
     
