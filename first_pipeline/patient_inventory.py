@@ -228,3 +228,13 @@ def generate_report(all_patients):
                 print("\n WARNING THERE ARE MULTIPLE SAMPLING RATES")
                 print(f"    IT WILL BE NECESSARY TO RESAMPLE TO A COMMON FREQUENCY")
     
+    #HOSPITALS
+    print("\n HOSPITALS")
+    print("-" * 50)
+    if 'hospital' in df.columns:
+        hosp_counts = df['hospital'].value_counts().sort_index()
+        for hosp, count in hosp_counts.items():
+            #this will show what is the SAMPLING RATE each hospital uses.
+            hosp_fs = df[df['hospital'] == hosp]['sampling_rate_hz'].unique()
+            print(f" Hospital {hosp}: {count} patients (fs={hosp_fs})")
+            
