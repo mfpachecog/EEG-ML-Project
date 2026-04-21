@@ -261,3 +261,14 @@ def generate_report(all_patients):
     output_csv = "pilot_inventory.csv"
     df.to_csv(output_csv, index=False)
     print(f"\n Inventory stored in: {output_csv}")
+
+    #COMPLETE TABLE
+    print("\n" + "=" * 80)
+    print("COMPLETE PATIENTS TABLE")
+    print("=" * 80)
+    display_cols = ['patient_id', 'cpc', 'outcome', 'age', 'sex', 'hospital', 'sampling_rate_hz', 'n_eeg_segments', 'n_unique_hours']
+    available_cols = [c for c in display_cols if c in df.columns]
+    print(df[available_cols].to_string(index=False))
+
+    return df
+
