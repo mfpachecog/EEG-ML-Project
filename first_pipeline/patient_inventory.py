@@ -129,3 +129,8 @@ def inventory_all_patients(data_dir):
     all_items = sorted(os.listdir(data_dir))
     patient_ids = [d for d in all_items if os.path.isdir(os.path.join(data_dir, d)) and d.isdigit()]
 
+    print("=" * 80)
+    print(f"PILOT SET INVENTORY (20 PATIENTS)")
+    print(f"Directory: {data_dir}")
+    print(f"Founded patients {len(patient_ids)}")
+    print("=" * 80)
