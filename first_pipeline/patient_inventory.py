@@ -207,4 +207,13 @@ def generate_report(all_patients):
             bar = "█" * int(pct /2)
             print(f" {outcome:6s}: {count:3d} pacientes ({pct:.1f}%) {bar}")
     
+    #CPC DISTRIBUTION
+    print("\n CPC DISTRIBUTION: ")
+    print("-" * 40)
+    if 'cpc' in df.columns:
+        cpc_counts = df['cpc'].value_counts().sort_index()
+        for cpc, count in cpc_counts.items():
+            label = {1: 'Good Recovery', 2:"Moderate Disability", 3: "Severe Disability", 4: "Vegetative", 5: "Death"}.get(cpc, 'unknown')
+            group = 'GOOD' if cpc <= 2 else 'POOR'
+            print(f" CPC {cpc}: {count:3d} patients - {label} [{group}]")
     
