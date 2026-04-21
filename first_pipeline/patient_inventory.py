@@ -257,3 +257,7 @@ def generate_report(all_patients):
         for sex, count in sex_counts.items():
             print(f"    {sex}: {count} PATIENTS")
     
+    #KEEP CSV
+    output_csv = "pilot_inventory.csv"
+    df.to_csv(output_csv, index=False)
+    print(f"\n Inventory stored in: {output_csv}")
