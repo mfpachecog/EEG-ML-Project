@@ -107,13 +107,13 @@ def inventory_single_patient(data_dir:str, patient_id:str) -> dict:
             #with this we don't load the WHOLE signal and it is faster than rdrecord()
             header = wfdb.rdheader(first_record_path)
             patient_info['sampling_rate'] = header.fs
-            patient_info['n_channles'] = header.n_sig
+            patient_info['n_channels'] = header.n_sig
             patient_info['channel_names'] = header.sig_name
             patient_info['segment_duration_sec'] = header.sig_len / header.fs
         except Exception as e:
             print(f" WARNING {patient_id} error reading the header: {e}")
             patient_info['sampling rate'] = None
-            patient_info['n_channles'] = None
+            patient_info['n_channels'] = None
     
     return patient_info
 
