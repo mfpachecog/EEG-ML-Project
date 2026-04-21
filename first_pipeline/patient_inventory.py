@@ -190,5 +190,21 @@ def generate_report(all_patients):
 
     df = pd.DataFrame(summary_data)
 
-    
+    #REPORT CREATION
 
+    print("\n" + "=" * 80)
+    print("INVENTORY RESUME")
+    print("=" * 80)
+
+    #CLASSES BALANCE
+    print("\n CLASSES BALANCE:")
+    print("-" * 40)
+    if 'outcome' in df.columns:
+        outcome_counts = df['outcome'].value_counts()
+        total = len(df)
+        for outcome, count in outcome_counts.items():
+            pct = (count / total) * 100
+            bar = "█" * int(pct /2)
+            print(f" {outcome:6s}: {count:3d} pacientes ({pct:.1f}%) {bar}")
+    
+    
