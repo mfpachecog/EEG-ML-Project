@@ -217,3 +217,14 @@ def generate_report(all_patients):
             group = 'GOOD' if cpc <= 2 else 'POOR'
             print(f" CPC {cpc}: {count:3d} patients - {label} [{group}]")
     
+    #SAMPLING RATE
+    print("\n SAMPLING RATES:")
+    print("-" * 50)
+    if 'sampling_rate' in df.columns:
+        fs_counts = df['sampling_rate_hz'].value_counts().sort_index()
+        for fs, count in fs_counts.items():
+            print(f"    {fs} Hz: {count} patients")
+            if len(fs_counts) > 1:
+                print("\n WARNING THERE ARE MULTIPLE SAMPLING RATES")
+                print(f"    IT WILL BE NECESSARY TO RESAMPLE TO A COMMON FREQUENCY")
+    
