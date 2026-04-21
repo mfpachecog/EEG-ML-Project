@@ -237,4 +237,13 @@ def generate_report(all_patients):
             #this will show what is the SAMPLING RATE each hospital uses.
             hosp_fs = df[df['hospital'] == hosp]['sampling_rate_hz'].unique()
             print(f" Hospital {hosp}: {count} patients (fs={hosp_fs})")
-            
+
+    #AVAILABLE HOURS
+    print("\n TEMPORARY COVERAGE:")
+    print("-" * 50)
+    if 'max_hours' in df.columns:
+        print(f"    MINIMUM HOUR REGISTERED: {df['min_hour'].min()}")
+        print(f"    MAXIMUM HOUR REGISTERED: {df['max_hour'].max()}")
+        print(f"    MEDIAN HOURS PER PATIENT: {df['n_unique_hours'].median():.0f}")
+
+    
