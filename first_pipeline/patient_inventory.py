@@ -106,7 +106,7 @@ def inventory_single_patient(data_dir:str, patient_id:str) -> dict:
             #We use the method .rdheader to read only the header file, and make the process quicker
             #with this we don't load the WHOLE signal and it is faster than rdrecord()
             header = wfdb.rdheader(first_record_path)
-            patient_info['sampling rate'] = header.fs
+            patient_info['sampling_rate'] = header.fs
             patient_info['n_channles'] = header.n_sig
             patient_info['channel_names'] = header.sig_name
             patient_info['segment_duration_sec'] = header.sig_len / header.fs
