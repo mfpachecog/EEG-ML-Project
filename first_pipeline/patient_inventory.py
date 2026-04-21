@@ -272,3 +272,13 @@ def generate_report(all_patients):
 
     return df
 
+if __name__ == "__main__":
+
+    #INVENTORY ALL THE PATIENTS
+    all_patients, patient_ids = inventory_all_patients(DATA_DIR)
+
+    #CREATE AND GENERATE THE CSV REPORT
+    df = generate_report(all_patients)
+
+    print("SCRIPT FINAL")
+
