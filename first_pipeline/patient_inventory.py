@@ -78,7 +78,7 @@ def inventory_single_patient(data_dir:str, patient_id:str) -> dict:
     #format: {patient_id}_{segment}_{hour}_EEG.hea
     hours_available = []
     for f in eeg_hea_files:
-        parts = f.replace('hea', '').split('_')
+        parts = f.replace('.hea', '').split('_')
         if len(parts) >= 3:
             try:
                 hour = int(parts[2])
@@ -112,7 +112,7 @@ def inventory_single_patient(data_dir:str, patient_id:str) -> dict:
             patient_info['segment_duration_sec'] = header.sig_len / header.fs
         except Exception as e:
             print(f" WARNING {patient_id} error reading the header: {e}")
-            patient_info['sampling rate'] = None
+            patient_info['sampling_rate'] = None
             patient_info['n_channels'] = None
     
     return patient_info
@@ -224,7 +224,7 @@ def generate_report(all_patients):
         fs_counts = df['sampling_rate_hz'].value_counts().sort_index()
         for fs, count in fs_counts.items():
             print(f"    {fs} Hz: {count} patients")
-            if len(fs_counts) > 1:
+        if len(fs_counts) > 1:
                 print("\n WARNING THERE ARE MULTIPLE SAMPLING RATES")
                 print(f"    IT WILL BE NECESSARY TO RESAMPLE TO A COMMON FREQUENCY")
     
