@@ -134,3 +134,12 @@ def inventory_all_patients(data_dir):
     print(f"Directory: {data_dir}")
     print(f"Founded patients {len(patient_ids)}")
     print("=" * 80)
+
+    #inventory each patient
+    all_patients = []
+
+    for i, pid in enumerate(patient_ids):
+        print(f" [{i+1}/{len(patient_ids)}] Processing patient {pid}...", end="")
+        info = inventory_single_patient(data_dir, pid)
+        all_patients.append(info)
+        
