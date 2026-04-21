@@ -142,4 +142,15 @@ def inventory_all_patients(data_dir):
         print(f" [{i+1}/{len(patient_ids)}] Processing patient {pid}...", end="")
         info = inventory_single_patient(data_dir, pid)
         all_patients.append(info)
-        
+
+        #show quick resume about the collected data 
+        outcome = info.get('outcome_label', '?')
+        fs = info.get('samplint_rate', '?')
+        n_seg = info.get('n_eeg_segments', 0)
+        n_hours = info.get('n_unique_hours', 0)
+        print(f"CPC={info.get('cpc_numeric', '?')}"
+              f"({outcome})"
+              f"| fs={fs} Hz"
+              f"| {n_seg} segments"
+              f"| {n_hours} hours")
+    return all_patients, patient_ids
