@@ -241,7 +241,7 @@ def generate_report(all_patients):
     #AVAILABLE HOURS
     print("\n TEMPORARY COVERAGE:")
     print("-" * 50)
-    if 'max_hours' in df.columns:
+    if 'max_hour' in df.columns:
         print(f"    MINIMUM HOUR REGISTERED: {df['min_hour'].min()}")
         print(f"    MAXIMUM HOUR REGISTERED: {df['max_hour'].max()}")
         print(f"    MEDIAN HOURS PER PATIENT: {df['n_unique_hours'].median():.0f}")
