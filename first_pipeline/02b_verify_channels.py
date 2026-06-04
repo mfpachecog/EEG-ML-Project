@@ -25,3 +25,21 @@ from collections import Counter
 
 # CONFIGURATION 
 
+DATA_DIR = "/home/singular1ty/Documents/_PROJECTS/eeg-ml-project/patients_data_raw/physionet.org/files/i-care/2.1/training"
+
+# create the set variable with the 19 standard channels
+
+STANDARD_10_20 = {
+    'Fp1', 'Fp2',
+    'F7', 'F3', 'Fz', 'F4', 'F8',
+    'T3', 'C3', 'Cz', 'C4', 'T4',
+    'T5', 'P3', 'Pz', 'P4', 'T6',
+    '01', '02'
+}
+
+# mapping of the old nomenclature in case it appears
+
+MODERN_TO_OLD = {
+    'T7':'T3', 'T8':'T4',
+    'P7':'T5', 'P8':'T6'
+}
