@@ -15,5 +15,13 @@ but not have the standards on them. For insance extra channels or bad labeled ch
 
 If we start the processing assuming that and turns out at the end that there are missing channels in some patients, we will have to rewrite 
 and iterate code again. 
-
 """
+
+import os
+import sys
+import wfdb
+import pandas as pd
+from collections import Counter
+
+# CONFIGURATION 
+
