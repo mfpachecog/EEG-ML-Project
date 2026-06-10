@@ -73,3 +73,19 @@ def get_first_segment_channels(patient_dir:str, patient_id:str) -> list:
         print(f" Error reading {patient_id}: {e}")
         return None
 
+#function to normalize the channel names to the standard in the case they appear. 
+
+def normalize_channel_name(ch_name: str) -> str:
+
+    #capitalization normalization: FP1 -> fp1
+
+    ch_norm = ch_name.strip()
+
+    if ch_norm in MODERN_TO_OLD:
+        return MODERN_TO_OLD[ch_norm]
+    
+    upper = ch_norm.upper()
+    if upper.startswith('FP'):
+        return 'Fp' + upper[2: ]
+    
+    return ch_norm
