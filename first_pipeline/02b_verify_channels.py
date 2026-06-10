@@ -23,7 +23,11 @@ import wfdb
 import pandas as pd
 from collections import Counter
 
-# CONFIGURATION 
+"""
+====================================================================================================================================
+CONFIGURATION 
+====================================================================================================================================
+"""
 
 DATA_DIR = "/home/singular1ty/Documents/_PROJECTS/eeg-ml-project/patients_data_raw/physionet.org/files/i-care/2.1/training"
 
@@ -43,3 +47,29 @@ MODERN_TO_OLD = {
     'T7':'T3', 'T8':'T4',
     'P7':'T5', 'P8':'T6'
 }
+
+"""
+====================================================================================================================================
+FUNCTIONS
+====================================================================================================================================
+"""
+
+#this funct reads only the header of the patient first EEG segment and returns the list of channels
+def get_first_segment_channels(patient_dir:str, patient_id:str) -> list:
+    
+    all_files = os.listdir(patient_dir)
+    eeg_hea_files = sorted([f for f in all_files if f.endswith('.hea') and 'EEG' in f.upper()])
+
+    if not eeg_hea_files:
+        return None
+    
+    first_record = eeg_hea_files[0].replace('.hea', '')
+    first_path = os.path.join(patient_dir, first_record)
+
+    try:
+        header = wfdb.rdheader(first_path)
+        return header.sig_name
+    except Exception as e:
+        print(f" Error reading {patient_id}: {e}")
+        return None
+
