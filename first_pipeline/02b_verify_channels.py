@@ -123,4 +123,29 @@ def  main():
     print(f"Patients to verify: {len(patients_ids)}")
     print("=" * 80)
 
-    
+    #verify each patient
+
+    results = {}
+    all_extra_channels = Counter()
+
+    for pid in patients_ids:
+        channels = get_first_segment_channels(DATA_DIR, pid )
+
+        if channels is None:
+            print(f" WARNING {pid}: could not be read")
+            continue
+
+        verification = verify_patient_channels(channels)
+        results[pid] = verification
+
+        #acumulate extra channels for the global analysis
+        for ch in verification['extra_channels']:
+            all_extra_channels[ch] += 1
+        
+        #show resume per patient
+        status = "CHECK" if verification['has_all_19_standard'] else "WRONG"
+        print(f" {status} {pid}:"
+              f"{verification['total_channels']} total channels, "
+              f"{len(verification['standard_present'])}/ 19 standard"
+              + (f", ARE MISSING: {verification['missing_standard']}"
+                 if verification['missing_standard'] else ""))
