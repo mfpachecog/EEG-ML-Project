@@ -78,8 +78,7 @@ def get_first_segment_channels(data_dir:str, patient_id:str) -> list:
 
 def normalize_channel_name(ch_name: str) -> str:
 
-    #capitalization normalization: FP1 -> fp1
-
+    #capitalization normalization only on channels FP1 -> Fp1
     ch_norm = ch_name.strip()
 
     if ch_norm in MODERN_TO_OLD:
@@ -90,3 +89,25 @@ def normalize_channel_name(ch_name: str) -> str:
         return 'Fp' + upper[2: ]
     
     return ch_norm
+
+def verify_patient_channels(channels: list) -> dict:
+    
+    #this function verifies what standard channels the patient has, and which are missing
+
+    normalized = [normalize_channel_name(ch) for ch in channels]
+    normalized_set = set(normalized)
+
+    #now we separate standard channels vs extra channels 
+    standard_present = normalized_set & STANDARD_10_20
+    missing_standard = STANDARD_10_20 - normalized_set
+    extra_channels = normalized_set - STANDARD_10_20
+
+    return {
+        'total_channels': len(channels),
+        'raw_channel_names':channels,
+        'normalized_names':normalized,
+        'standard_present':sorted(standard_present),
+        'missing_standard':sorted(missing_standard),
+        'extra_channels':sorted(extra_channels),
+        'has_all_19_standard':len(missing_standard) == 0
+    }
