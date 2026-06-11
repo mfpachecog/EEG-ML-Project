@@ -111,3 +111,16 @@ def verify_patient_channels(channels: list) -> dict:
         'extra_channels':sorted(extra_channels),
         'has_all_19_standard':len(missing_standard) == 0
     }
+
+def  main():
+    #detect patients
+
+    all_items = sorted(os.listdir(DATA_DIR))
+    patients_ids = [d for d in all_items if os.path.isdir(os.path.join(DATA_DIR, d)) and d.isdigit()]
+
+    print("=" * 80)
+    print("STANDARD 10 - 20 CHANNEL VERIFICATION")
+    print(f"Patients to verify: {len(patients_ids)}")
+    print("=" * 80)
+
+    
