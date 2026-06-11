@@ -149,3 +149,53 @@ def  main():
               f"{len(verification['standard_present'])}/ 19 standard"
               + (f", ARE MISSING: {verification['missing_standard']}"
                  if verification['missing_standard'] else ""))
+
+    """
+    GLOBAL ANALYSIS OF THE INFORMATION
+    """
+
+    print("\n" + "=" * 90)
+    print("GLOBAL ANALYSIS")
+    print("=" * 90)
+
+    #how many patients have the complete 19 channels
+    complete = [pid for pid, v in results.items() if v['has_all_19_standard']]
+    incomplete = [pid for pid, v in results.items() if not v['has_all_19_standard']]
+
+    print(f"COVERAGE OF THE COMPLETE 10 - 20 SYSTEM")
+    print("-" * 60)
+    print(f" Patients with the 19 standard channels: {len(complete)}/{len(results)}")
+    print(f" Patients with missing channels: {len(incomplete)}/{len(results)}")
+
+    if incomplete:
+        print(f"\n patients with missing channels:")
+        for pid in incomplete:
+            v = results[pid]
+            print(f"    {pid}: missing {v['missing_standard']}")
+    
+    #count how many times each standard channel appears
+    print(f" PRESENCE OF EACH STANDARD CHANNEL (in how many patients it appears):")
+    print("-" * 60)
+    channel_presence = Counter()
+    for v in results.values():
+        for ch in v['standard_present']:
+            channel_presence[ch] +=1
+    
+    #sort by channel name
+    for ch in sorted(STANDARD_10_20):
+        count = channel_presence.get(ch, 0)
+        pct = (count / len(results)) * 100
+        bar = "|" * int(pct/5)
+        status = "CHECK" if count == len(results) else "WRONG"
+        print(f"    {status} {ch:5s}: {count:2d}/{len(results)} patients ({pct:.0f}%) {bar}")
+
+    #extra channels NO STANDARD
+    print(f"EXTRA CHANNELS (who doesn't belong to the 10 - 20 standard system):")
+    print("-" * 60)
+    if all_extra_channels:
+        for ch, count in all_extra_channels.most_common():
+            print(f"    {ch:10s}: Appear in {count}/{len(results)} patients")
+    else:
+        print("(None)")
+
+    
