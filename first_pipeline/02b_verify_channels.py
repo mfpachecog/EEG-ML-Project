@@ -204,7 +204,7 @@ def  main():
 
     print("\n" + "=" * 90)
     print("IMPLICATION TO THE PREPROCESSING PIPELINE")
-    print("=" + 90)
+    print("=" * 90)
 
     if len(complete) == len(results):
         print(f"""
