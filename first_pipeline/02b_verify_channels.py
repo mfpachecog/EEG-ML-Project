@@ -55,8 +55,9 @@ FUNCTIONS
 """
 
 #this funct reads only the header of the patient first EEG segment and returns the list of channels
-def get_first_segment_channels(patient_dir:str, patient_id:str) -> list:
+def get_first_segment_channels(data_dir:str, patient_id:str) -> list:
     
+    patient_dir = os.path.join(data_dir, patient_id)
     all_files = os.listdir(patient_dir)
     eeg_hea_files = sorted([f for f in all_files if f.endswith('.hea') and 'EEG' in f.upper()])
 
