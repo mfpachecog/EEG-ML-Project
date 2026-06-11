@@ -198,4 +198,35 @@ def  main():
     else:
         print("(None)")
 
+    """
+    DESIGN DECISION
+    """
+
+    print("\n" + "=" * 90)
+    print("IMPLICATION TO THE PREPROCESSING PIPELINE")
+    print("=" + 90)
+
+    if len(complete) == len(results):
+        print(f"""
+            All the patients have the 19 complete standard channels. 
+            PIPELINE: choosing directly the 19 channels -> without necessary imputation"""
+              )
+    elif len(complete) >= len(results) * 0.9:
+        print(f"""
+        the majority ({len(complete)}/{len(results)})  have the 19 channels,
+        but some patients have missing channels
+
+        PIPELINE: strategy reconsideration needed 
+        - Option A: exclude the {len(incomplete)} incomplete patients (small pilot)
+        - Option B: imput the missing channes by spacial interpolation
+        """) 
+    else: 
+        print(f"""
+        Many patients ({len(incomplete)}/{len(results)}) have missing channels.
+
+        PIPELINE: Strategy reconsideration needed:
+        - Use estrict intersection of common channels (less than 19)
+        - implement spatial imputation
+        """)
+    
     
