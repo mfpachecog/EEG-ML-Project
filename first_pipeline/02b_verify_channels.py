@@ -228,5 +228,25 @@ def  main():
         - Use estrict intersection of common channels (less than 19)
         - implement spatial imputation
         """)
-    
+
+    # Keep results
+
+    output_df = pd.DataFrame([
+        {
+            'patient_id':pid,
+            'total_channels':v['total_channels'],
+            'n_standard_present':len(v['standard_present']),
+            'has_all_19':v['has_all_19_standard'],
+            'missing_channels':','.join(v['missing_standard']) if v['missing_standard'] else 'none',
+            'extra_channels':','.join(v['extra_channels']) if v['extra_channels'] else 'none',
+            'raw_channel_names':','.join(v['raw_channel_names'])
+        }
+        for pid, v in results.items()
+    ])
+
+    output_df.to_csv('channel_verification.csv', index=False)
+    print("\n results stored in: channel_verification.csv")
+
+if __name__ == "__main__":
+    main()
     
