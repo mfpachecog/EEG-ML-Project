@@ -29,7 +29,7 @@ CONFIGURATION
 ====================================================================================================================================
 """
 
-DATA_DIR = "/home/singular1ty/Documents/_PROJECTS/eeg-ml-project/patients_data_raw/physionet.org/files/i-care/2.1/training"
+DATA_DIR = "/home/singular1ty/Documents/_PROJECTS/ongoing_projects/eeg-ml-project/patients_data_raw/physionet.org/files/i-care/2.1/training"
 
 # create the set variable with the 19 standard channels
 
