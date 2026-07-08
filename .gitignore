@@ -30,6 +30,9 @@ Thumbs.db
 *.set
 *.mat
 
+# épocas preprocesadas (data derivada, re-generable con src/preprocessing.py)
+data_processed/
+
 # --- jupyter --- 
 
 .ipynb_checkpoints/
