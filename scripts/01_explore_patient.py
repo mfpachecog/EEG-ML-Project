@@ -17,7 +17,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 #route to the file where the patients data is downloaded. 
-DATA_DIR = "/home/singular1ty/Documents/_PROJECTS/ongoing_projects/eeg-ml-project/patients_data_raw/physionet.org/files/i-care/2.1/training"
+# Ruta robusta a los datos: la centraliza src/config.py (evita rutas absolutas hardcodeadas)
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "src"))
+from config import DATA_DIR
 
 #patient ID from the downloaded patients
 PATIENT_ID = "0463"
@@ -173,9 +175,9 @@ def read_eeg_segment(patient_dir, hea_files):
 
     print(f"\n Signal Statistics (from all the channels):")
     print(f" {'-'*50}")
-    print(f"    Minimun :   {np.nanmin(signal):>10.2f} µV")
-    print(f"    Maximun :   {np.nanmax(signal):>10.2f} µV")
-    print(f"    Mean    :   {np.nanmean(signal):>10.2f} µV")
+    print(f"    Minimun :   {np.nanmin(signal):>10.2f} nu")
+    print(f"    Maximun :   {np.nanmax(signal):>10.2f} nu")
+    print(f"    Mean    :   {np.nanmean(signal):>10.2f} nu")
     print(f"    Standard Deviation  :   {np.nanstd(signal):>10.2f}")
 
     #Detecting channels with problems (NaN or constant values)
@@ -193,7 +195,7 @@ def read_eeg_segment(patient_dir, hea_files):
         elif np.std(ch_data) < 0.001:
             status = "WARNING Plain Signal (Possible Disconection)"
         else:
-            status = f"OK (std={np.nanstd(ch_data):.2f} µV)"
+            status = f"OK (std={np.nanstd(ch_data):.2f} nu)"
 
         print(f"    {ch_name:8s}:{status}")
     return record, signal
@@ -286,13 +288,13 @@ def plot_raw_eeg(record, signal, duration_seconds=10):
                  fontsize=13, fontweight='bold')
     ax.set_xlim(0, duration_seconds)
 
-    #add amplitude scale (100 micro volts) as this is the standard for clinic EEg, a vertical bar that indicates
+    #add amplitude scale (100 units). NOTE: amplitudes are in 'nu' (uncalibrated), NOT real µV; a vertical bar that indicates
     #how many microvolts represent certain vertical distance in the graphic.
 
     scale_x = duration_seconds * 0.95
     scale_y = offsets[0] - 150 if offsets else 0
     ax.plot([scale_x, scale_x], [scale_y, scale_y + 100], linewidth=2, color='red', alpha=0.8)
-    ax.text(scale_x + 0.1, scale_y + 50, '100 µV', fontsize=8, color='red', va='center')
+    ax.text(scale_x + 0.1, scale_y + 50, '100 nu', fontsize=8, color='red', va='center')
 
     #Grid for temporal reference
     ax.grid(True, axis='x', alpha=0.3, linestyle='--')

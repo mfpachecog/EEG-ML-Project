@@ -29,7 +29,9 @@ CONFIGURATION
 ====================================================================================================================================
 """
 
-DATA_DIR = "/home/singular1ty/Documents/_PROJECTS/ongoing_projects/eeg-ml-project/patients_data_raw/physionet.org/files/i-care/2.1/training"
+# Ruta robusta a los datos: la centraliza src/config.py (evita rutas absolutas hardcodeadas)
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "src"))
+from config import DATA_DIR
 
 # create the set variable with the 19 standard channels
 
