@@ -26,3 +26,8 @@ text = "MIT"
 
 name = "Manuel Pacheco"
 email = "manuelfpg012@gmail.com"
+
+[dependency-groups]
+dev = [
+    "jupyterlab>=4.6.1",
+]
