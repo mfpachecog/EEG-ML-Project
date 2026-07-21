@@ -293,7 +293,7 @@ def reject_bad_epochs(
 
     DEVUELVE: (épocas_limpias, stats) con el conteo y las razones del descarte.
     """
-    data = f.get_data()                       # (n_ep, n_ch, n_times)
+    data = epochs.get_data()                       # (n_ep, n_ch, n_times)
     n_ep = data.shape[0]
 
     # std por (época, canal) -> base de ambos criterios.
