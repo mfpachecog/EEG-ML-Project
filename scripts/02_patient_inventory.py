@@ -24,7 +24,7 @@ import pandas as pd
 
 # Ruta robusta a los datos: la centraliza src/config.py (evita rutas absolutas hardcodeadas)
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "src"))
-from config import DATA_DIR
+from src.config import DATA_DIR
 
 #MAIN FUNCTION ORGANIZE A SINGLE PATIENT 
 

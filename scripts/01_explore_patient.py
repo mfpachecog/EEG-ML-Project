@@ -19,7 +19,7 @@ import matplotlib.pyplot as plt
 #route to the file where the patients data is downloaded. 
 # Ruta robusta a los datos: la centraliza src/config.py (evita rutas absolutas hardcodeadas)
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "src"))
-from config import DATA_DIR
+from src.config import DATA_DIR
 
 #patient ID from the downloaded patients
 PATIENT_ID = "0463"
