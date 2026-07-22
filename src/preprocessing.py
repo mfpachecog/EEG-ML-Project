@@ -12,7 +12,9 @@ El pipeline sigue el orden EXACTO decidido en el finding 016 (y ADR-005):
     2. Filtrar: notch a la frecuencia de red del paciente + pasa-banda 0.5-45 Hz.
     3. Re-muestrear a 100 Hz — DESPUÉS de filtrar (el corte en 45 Hz es el
        anti-aliasing: Nyquist a 100 Hz = 50 Hz > 45 Hz).
-    4. Re-referenciar a CAR (promedio común de todos los canales).
+    4. Re-referenciar a CAR (promedio común), EXCLUYENDO del promedio los canales
+       muertos detectados en el segmento (findings 021 §3.3 / 022 §3): así no
+       contaminan a los sanos ni se "reviven" para escapar del rechazo del paso 6.
     5. Segmentar en épocas fijas de 10 s (estacionariedad + muchas muestras).
     6. Rechazar épocas malas por z-score ROBUSTO (no umbral fijo en µV, porque
        las amplitudes I-CARE están en 'nu' sin calibrar): descartar tramos
@@ -244,12 +246,50 @@ def resample_raw(raw: mne.io.BaseRaw, sfreq: int = TARGET_SFREQ_HZ) -> mne.io.Ba
     return raw
 
 
+def detect_flat_channels(
+    raw: mne.io.BaseRaw, flat_fraction: float = FLAT_STD_FRACTION
+) -> list[str]:
+    """Detecta canales PLANOS/muertos en TODO el segmento (previo al CAR).
+
+    Análogo, a nivel de CANAL sobre el segmento completo, al criterio `is_flat`
+    que `reject_bad_epochs` aplica a nivel de época: calcula la std de cada canal
+    sobre toda la señal y marca como plano el que caiga por debajo de una fracción
+    de la MEDIANA de las stds de los canales. Un canal desconectado durante todo
+    el segmento (constante -> std casi cero) queda muy por debajo del umbral.
+
+    POR QUÉ AQUÍ Y NO SOLO EN EL PASO 6 (findings 021 §3.3 / 022 §3): el CAR resta
+    el promedio de los canales en cada instante. Si un canal muerto (constante)
+    entra en ese promedio, (a) contamina a los 18 canales sanos con su ausencia
+    de señal y, peor, (b) el propio canal muerto se "revive" como -promedio, deja
+    de ser plano y ESCAPA al criterio `is_flat` posterior — colando un artefacto
+    silencioso. Detectándolos antes y marcándolos en `raw.info['bads']`, el CAR de
+    MNE los EXCLUYE del promedio (verificado empíricamente en MNE 1.11) y los deja
+    intactos (siguen planos), de modo que el paso 6 vuelve a poder rechazarlos.
+
+    Reutiliza `FLAT_STD_FRACTION` (mismo umbral relativo que el paso 6): a nivel de
+    segmento un canal realmente muerto tiene std ~0, así que el umbral lo separa sin
+    ambigüedad de los canales con señal real.
+
+    DEVUELVE: lista de nombres de canales planos (vacía si no hay ninguno).
+    """
+    data = raw.get_data()                       # (n_ch, n_times)
+    ch_std = data.std(axis=1)                    # (n_ch,)
+    median_std = np.median(ch_std)
+    flat_thresh = flat_fraction * median_std
+    return [name for name, std in zip(raw.ch_names, ch_std) if std < flat_thresh]
+
+
 def rereference_car(raw: mne.io.BaseRaw) -> mne.io.BaseRaw:
     """Paso 4 — referencia promedio común (CAR).
 
-    Resta, en cada instante, el promedio de los 19 canales. Elimina el ruido
-    COMÚN a todo el cuero cabelludo (que no aporta información de localización)
-    y hace la señal independiente del electrodo de referencia original.
+    Resta, en cada instante, el promedio de los canales. Elimina el ruido COMÚN a
+    todo el cuero cabelludo (que no aporta información de localización) y hace la
+    señal independiente del electrodo de referencia original.
+
+    Los canales marcados en `raw.info['bads']` (canales muertos detectados por
+    `detect_flat_channels`) quedan EXCLUIDOS del promedio y no se re-referencian:
+    así el promedio se calcula solo con canales sanos y el canal muerto sigue plano
+    para que el paso 6 pueda rechazarlo (findings 021 §3.3 / 022 §3).
     """
     raw.set_eeg_reference(ref_channels="average", projection=False)
     return raw
@@ -396,7 +436,18 @@ def preprocess_patient(
         raw, utility_freq = load_segment_as_raw(patient_dir / name)
         filter_raw(raw, utility_freq)      # paso 2
         resample_raw(raw)                  # paso 3
+        # Refinamiento del paso 4: marcar canales muertos ANTES del CAR para
+        # excluirlos del promedio y no contaminar a los sanos (ver detect_flat_channels).
+        raw.info["bads"] = detect_flat_channels(raw)
         rereference_car(raw)               # paso 4
+        # Los 'bads' ya cumplieron su única función: excluir los canales muertos del
+        # promedio CAR. El canal muerto sigue plano (CAR no lo re-referencia), así que
+        # el paso 6 puede rechazarlo igual. Limpiamos 'bads' ANTES de epocar porque
+        # `concatenate_epochs` (más abajo) exige que TODOS los segmentos tengan idéntico
+        # info['bads']; si un segmento detecta un canal muerto distinto a otro, la
+        # concatenación falla ("info['bads'] must match"). Vaciarlo tras el CAR mantiene
+        # el efecto del fix y deja los info homogéneos para concatenar.
+        raw.info["bads"] = []
         per_segment_epochs.append(epoch_raw(raw))  # paso 5
 
     # Unir las épocas de todos los segmentos procesados en un solo objeto.
