@@ -1,0 +1,65 @@
+==============================================================================
+FASE 4 — CV anidada, controles negativos y congelado del modelo
+==============================================================================
+matriz completa (34000, 380) -> submuestreada (3400, 380) (200 épocas/paciente, 17 pacientes)
+
+No-leakage check PASSED: 17 folds, 17 patients, zero train/test patient overlap
+[0] anti-fuga LOPO: 17 folds, cero solapamiento de pacientes
+
+[1] CV anidada — 6 candidatos, LOPO externo:
+  fold  0: chose hgb_depth3 (inner AUC 0.844)
+  fold  1: chose hgb_depth3 (inner AUC 0.781)
+  fold  2: chose hgb_depth3 (inner AUC 0.719)
+  fold  3: chose hgb_depth3 (inner AUC 0.703)
+  fold  4: chose hgb_depth3 (inner AUC 0.812)
+  fold  5: chose hgb_depth3 (inner AUC 0.828)
+  fold  6: chose hgb_depth3 (inner AUC 0.766)
+  fold  7: chose hgb_depth3 (inner AUC 0.730)
+  fold  8: chose hgb_depth3 (inner AUC 0.587)
+  fold  9: chose hgb_depth3 (inner AUC 0.619)
+  fold 10: chose hgb_depth3 (inner AUC 0.619)
+  fold 11: chose hgb_depth3 (inner AUC 0.762)
+  fold 12: chose hgb_depth3 (inner AUC 0.635)
+  fold 13: chose hgb_depth3 (inner AUC 0.688)
+  fold 14: chose hgb_depth3 (inner AUC 0.688)
+  fold 15: chose hgb_depth3 (inner AUC 0.683)
+  fold 16: chose hgb_depth3 (inner AUC 0.714)
+    (43.8s)
+
+    ESTIMACIÓN INSESGADA (nivel paciente, N=17):
+      roc_auc              0.556
+      balanced_accuracy    0.625
+      sensitivity          1.000
+      specificity          0.250
+
+    IC bootstrap (remuestreando PACIENTES):
+           metric    point   ci_low  ci_high  n_valid  n_boot  n_patients
+          roc_auc 0.555556 0.242424 0.848485     2000    2000          17
+balanced_accuracy 0.625000 0.500000 0.785714     2000    2000          17
+      sensitivity 1.000000 1.000000 1.000000     2000    2000          17
+      specificity 0.250000 0.000000 0.571429     2000    2000          17
+
+    modelo elegido en cada fold externo:
+hgb_depth3    17
+    (si el ganador baila entre folds, ninguno domina de verdad)
+
+[2] reglas de agregación época->paciente:
+    mean           AUC=0.556  balacc=0.625
+    median         AUC=0.583  balacc=0.625
+    good_fraction  AUC=0.528  balacc=0.625
+    trimmed_mean   AUC=0.556  balacc=0.625
+
+[3] controles negativos sobre 'hgb_depth3':
+    permutación: observado=0.639  nulo=0.478±0.162  p=0.1592  (n=200, 97.8s)
+    sonda de identidad: accuracy=0.983 (x16.7 sobre azar)
+
+[4] calibración: Brier=0.252  ECE=0.168  (prob. media predicha=0.642 vs tasa real de good=0.529)
+
+[5] congelando el modelo elegido…
+    modelo -> /home/singular1ty/Documents/projects/ongoing_projects/eeg-ml-project/development/models/frozen_model.joblib
+    ficha  -> /home/singular1ty/Documents/projects/ongoing_projects/eeg-ml-project/development/models/frozen_model.json
+    predicciones por paciente -> data_processed/nested_cv_patient_predictions.csv
+
+==============================================================================
+HECHO
+==============================================================================
