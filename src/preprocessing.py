@@ -13,7 +13,7 @@ El pipeline sigue el orden EXACTO decidido en el finding 016 (y ADR-005):
     3. Re-muestrear a 100 Hz — DESPUÉS de filtrar (el corte en 45 Hz es el
        anti-aliasing: Nyquist a 100 Hz = 50 Hz > 45 Hz).
     4. Re-referenciar a CAR (promedio común), EXCLUYENDO del promedio los canales
-       muertos detectados en el segmento (findings 021 §3.3 / 022 §3): así no
+       muertos detectados en el segmento: así no
        contaminan a los sanos ni se "reviven" para escapar del rechazo del paso 6.
     5. Segmentar en épocas fijas de 10 s (estacionariedad + muchas muestras).
     6. Rechazar épocas malas por z-score ROBUSTO (no umbral fijo en µV, porque
