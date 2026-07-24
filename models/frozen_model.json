@@ -404,8 +404,47 @@
     "tp": 9.0,
     "brier_score": 0.25194709776505514
   },
-  "permutation_p_value": 0.15920398009950248,
+  "classifier_params": {
+    "_comment": "Hiperparametros explicitos del HistGradientBoostingClassifier, volcados para que la ficha no dependa del catalogo candidate_classifiers(). Verificados contra frozen_model.joblib en la auditoria del 2026-07-23.",
+    "max_depth": 3,
+    "max_iter": 200,
+    "learning_rate": 0.1,
+    "l2_regularization": 0.0,
+    "random_state": 42,
+    "early_stopping_active": false,
+    "_early_stopping_note": "early_stopping='auto' pero INACTIVO: 3400 filas < umbral de 10000 de sklearn, luego do_early_stopping_=False y n_iter_=200. No hay split interno no agrupado."
+  },
+  "permutation_p_value_sgk5": 0.15920398009950248,
+  "_permutation_p_value_note": "OJO: este p corresponde al protocolo StratifiedGroupKFold-5 (n=200 permutaciones), NO al protocolo primario LOPO. Se renombro el 2026-07-23 (antes se llamaba 'permutation_p_value' a secas) porque inducia a leerlo como el p del protocolo principal. El p del protocolo primario es lopo_permutation_p_value, abajo.",
+  "lopo_null_distribution": {
+    "_comment": "AZAR REAL DEL PROTOCOLO PRIMARIO (LOPO). Medido empiricamente con 100 permutaciones de etiqueta a nivel de PACIENTE (nunca de epoca), conservando el balance 9/8. Fuente: old_scripts/06_lopo_null_distribution.py -> data_processed/lopo_null_aucs.npy",
+    "mean": 0.3882,
+    "sd": 0.1714,
+    "median": 0.3889,
+    "p5": 0.1243,
+    "p95": 0.6826,
+    "n_permutations": 100,
+    "standard_error_of_mean": 0.0171
+  },
+  "lopo_permutation_p_value": 0.1782,
+  "chance_level_warning": "EL AZAR DE ESTE PROTOCOLO ES 0.388, NO 0.5. Con 17 sujetos desbalanceados, dejar un paciente fuera (LOPO) deprime el AUC de forma sistematica. Comparar cualquier resultado -- incluido el del held-out de la Fase 5 -- contra 0.5 es comparar contra el azar de OTRO protocolo y produce la lectura falsa de que 'el modelo va peor que el azar'. La referencia correcta es la distribucion lopo_null_distribution.",
   "patient_identity_probe_accuracy": 0.9833333333333333,
   "n_development_patients": 17,
+  "phase5_protocol": {
+    "_comment": "Protocolo OBLIGATORIO para aplicar este modelo al conjunto held-out. Fijado ANTES de ver el held-out; no se altera despues de mirarlo.",
+    "held_out_patients": ["0303", "0306", "0312", "0313", "0316", "0320", "0326", "0328", "0349", "0353", "0356", "0358", "0359", "0360", "0364"],
+    "held_out_balance": "8 Good / 7 Poor (verificado contra los .txt de PhysioNet el 2026-07-23)",
+    "steps": [
+      "1. Preprocesar los held-out con EXACTAMENTE el mismo pipeline de Fase 2 (src/preprocessing.py), sin re-ajustar nada.",
+      "2. Extraer features con src/features.py (mismas 20 familias x 19 canales = 380).",
+      "3. REINDEXAR las columnas al orden exacto de feature_names de esta ficha ANTES de predecir. CRITICO: ChannelAggregator indexa por POSICION, no por nombre; un orden distinto promediaria familias equivocadas EN SILENCIO, sin lanzar error.",
+      "4. Cargar frozen_model.joblib con development/src/ en sys.path (ChannelAggregator vive ahi; si no, ModuleNotFoundError).",
+      "5. predict_proba SOLO. Prohibido fit/refit/recalibrar sobre el held-out.",
+      "6. Agregar epoca->paciente con la regla 'mean' y umbral 0.5, identico a la CV.",
+      "7. Reportar AUC de paciente con IC bootstrap A NIVEL DE PACIENTE (nunca de epoca), y compararlo contra lopo_null_distribution, NO contra 0.5.",
+      "8. Una sola pasada. El resultado se reporta tal cual salga, sin iterar sobre el held-out."
+    ],
+    "epochs_per_patient_note": "Los held-out se descargaron con ~20 segmentos EEG espaciados dentro de la ventana 24-72h (restriccion de ancho de banda, no de diseno). Puede que no alcancen las 2000 epocas de los pacientes de desarrollo; el modelo usa 200 epocas/paciente, asi que basta con llegar a esa cifra. Declarar en Limitaciones."
+  },
   "honest_reading": "La CV anidada NO muestra discriminacion por encima del azar. El modelo se congela para poder aplicar el protocolo de Fase 5 sobre el held-out, no porque haya evidencia de senal."
 }

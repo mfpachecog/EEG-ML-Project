@@ -428,8 +428,13 @@ def zero_crossing_rate(data: np.ndarray) -> np.ndarray:
     """
     centered = data - data.mean(axis=-1, keepdims=True)
     signs = np.sign(centered)
-    # sign() puede dar 0 exacto; se propaga el signo anterior para no contar
-    # un cero aislado como dos cruces.
+    # Un cambio de signo entre muestras consecutivas cuenta como cruce.
+    # NOTA: sign() puede dar 0 exacto cuando una muestra cae justo sobre la media.
+    # No se propaga el signo anterior, así que ese cero aislado cuenta como DOS
+    # cruces (+ -> 0 y 0 -> -) en lugar de uno. Es un sesgo despreciable con señal
+    # real muestreada a 100 Hz (el cero exacto en float es rarísimo) y, sobre todo,
+    # NO afecta la invarianza a escala: k>0 preserva los ceros exactamente igual
+    # que preserva los signos, así que el conteo no cambia al reescalar.
     crossings = np.diff(signs, axis=-1) != 0
     return crossings.mean(axis=-1)
 
