@@ -457,9 +457,82 @@ def _print_report(patient_df: pd.DataFrame, results: dict, ci: pd.DataFrame) -> 
 # CLI
 # =============================================================================
 
+def _self_check() -> None:
+    """Verifica la cadena completa de la Fase 5 SIN tocar el conjunto held-out.
+
+    POR QUÉ EXISTE: el held-out se mira UNA sola vez. Eso significa que el código
+    de la Fase 5 se ejecuta por primera vez sobre los datos que producen el
+    resultado final de la tesis — el peor momento posible para descubrir un bug.
+    Esta función ejercita todo el camino (cargar modelo → reindexar → predecir →
+    agregar) con datos SINTÉTICOS, de modo que cuando lleguen los pacientes reales
+    la primera ejecución ya no sea la primera.
+
+    Mismo criterio que `validation._self_check()`: un test que puede fallar.
+    """
+    print("=" * 70)
+    print("PHASE 5 SELF-CHECK -- synthetic data, held-out never touched")
+    print("=" * 70)
+
+    model, card = load_frozen_model()
+    names = list(card["feature_names"])
+    print(f"\n[1] frozen model loaded: {type(model).__name__} ({len(names)} features)")
+
+    rng = np.random.default_rng(0)
+    n = 600
+    df = pd.DataFrame(rng.normal(size=(n, len(names))), columns=names)
+    df.insert(0, "patient_id", np.repeat(["S1", "S2", "S3"], n // 3))
+    df.insert(1, "label", np.repeat([1, 0, 1], n // 3))
+    df.insert(2, "outcome", np.repeat(["Good", "Poor", "Good"], n // 3))
+    df.insert(3, "epoch_idx", list(range(n // 3)) * 3)
+
+    print("\n[2] happy path")
+    X = align_features_to_frozen(df, card)
+    proba = val._positive_class_proba(model, X)
+    assert X.shape == (n, len(names))
+    assert np.isfinite(proba).all() and ((proba >= 0) & (proba <= 1)).all()
+    print(f"    X={X.shape}, proba in [{proba.min():.3f}, {proba.max():.3f}] -- no refit")
+
+    print("\n[3] THE TRAP: shuffled column order must be repaired, not propagated")
+    shuffled = names.copy()
+    rng.shuffle(shuffled)
+    X_shuf = align_features_to_frozen(
+        df[["patient_id", "label", "outcome", "epoch_idx"] + shuffled], card
+    )
+    assert np.allclose(X, X_shuf), "column realignment FAILED -- silent-bug guard is broken"
+    print("    shuffled columns -> realigned, identical to original: True")
+
+    print("\n[4] loud failures (each MUST raise)")
+    cases = {
+        "missing column": df.drop(columns=[names[5]]),
+        "extra column": df.assign(intruder_column=1.0),
+        "NaN present": df.assign(**{names[0]: np.nan}),
+    }
+    for label, bad in cases.items():
+        try:
+            align_features_to_frozen(bad, card)
+            raise AssertionError(f"{label}: did NOT raise -- the guard is broken")
+        except ValueError as exc:
+            print(f"    {label:16s} -> blocked: {str(exc)[:55]}")
+
+    print("\n[5] epoch -> patient aggregation")
+    patient_df = val.aggregate_epoch_to_patient(
+        proba, df["patient_id"].to_numpy(), y_epoch=df["label"].to_numpy(), rule="mean"
+    )
+    assert len(patient_df) == 3 and "prob_good" in patient_df.columns
+    print(patient_df.to_string(index=False))
+
+    print("\n" + "=" * 70)
+    print("ALL PHASE 5 CHECKS PASSED -- chain ready for real data")
+    print("=" * 70)
+
+
 def main(argv: list[str] | None = None) -> int:
     argv = list(sys.argv[1:] if argv is None else argv)
     do_all = "--all" in argv
+
+    if "--self-check" in argv:
+        _self_check()
+        return 0
 
     if not argv or "--check" in argv or do_all:
         print_download_status()

@@ -1,0 +1,26 @@
+======================================================================
+PHASE 5 SELF-CHECK -- synthetic data, held-out never touched
+======================================================================
+
+[1] frozen model loaded: Pipeline (380 features)
+
+[2] happy path
+    X=(600, 380), proba in [0.104, 1.000] -- no refit
+
+[3] THE TRAP: shuffled column order must be repaired, not propagated
+    shuffled columns -> realigned, identical to original: True
+
+[4] loud failures (each MUST raise)
+    missing column   -> blocked: FEATURE CONTRACT VIOLATION: 1 features expected by the 
+    extra column     -> blocked: FEATURE CONTRACT VIOLATION: 1 unexpected feature column
+    NaN present      -> blocked: Held-out matrix contains 600 NaN/inf values
+
+[5] epoch -> patient aggregation
+patient_id  n_epochs  prob_good  pred  y_true
+        S1       200   0.883664     1       1
+        S2       200   0.847673     1       0
+        S3       200   0.853923     1       1
+
+======================================================================
+ALL PHASE 5 CHECKS PASSED -- chain ready for real data
+======================================================================

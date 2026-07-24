@@ -1,0 +1,115 @@
+
+==============================================================================
+[1] Synthetic data + contract check
+==============================================================================
+  shape = (34000, 118)
+  contract summary = {'n_rows': 34000, 'n_patients': 17, 'n_features': 114, 'n_good_patients': 9, 'n_poor_patients': 8, 'epochs_per_patient_min': 2000, 'epochs_per_patient_max': 2000}
+  OK: contract satisfied (34000 epochs, 17 patients, 9 good / 8 poor)
+
+==============================================================================
+[2] Contract must FAIL loudly on bad input
+==============================================================================
+  OK: NaN detected -> - 1 NaN values (columns: ['rel_delta_Fp1'])
+  OK: held-out leak detected -> - HELD-OUT PATIENTS PRESENT IN DEVELOPMENT DATA: ['0303'] -- the external test set must ne
+
+==============================================================================
+[3] No patient appears in train and test (LOPO + StratifiedGroupKFold)
+==============================================================================
+No-leakage check PASSED: 17 folds, 17 patients, zero train/test patient overlap
+ fold  n_train_patients  n_test_patients  n_train_epochs  n_test_epochs test_patients  test_n_good_epochs  test_n_poor_epochs
+    0                16                1           32000           2000         S0000                   0                2000
+    1                16                1           32000           2000         S0001                   0                2000
+    2                16                1           32000           2000         S0002                   0                2000
+No-leakage check PASSED: 5 folds, 17 patients, zero train/test patient overlap
+ fold  n_train_patients  n_test_patients           test_patients
+    0                13                4 S0001,S0003,S0004,S0014
+    1                14                3       S0005,S0008,S0010
+    2                13                4 S0002,S0006,S0015,S0016
+    3                14                3       S0000,S0007,S0009
+    4                14                3       S0011,S0012,S0013
+
+==============================================================================
+[4] Grouped CV (LOPO) on data WITH injected patient-level signal
+==============================================================================
+No-leakage check PASSED: 17 folds, 17 patients, zero train/test patient overlap
+PATIENT level (PRIMARY, N=17): AUC=0.861  balacc=0.812  sens=1.000  spec=0.625  brier=0.125
+EPOCH level (secondary, N=34000): AUC=0.797  balacc=0.719
+  aggregation returned 17 rows (one per patient)
+patient_id  n_epochs  prob_good  pred  y_true
+     S0000      2000   0.369324     0       0
+     S0001      2000   0.019473     0       0
+     S0002      2000   0.707965     1       0
+     S0003      2000   0.628339     1       1
+     S0004      2000   0.247645     0       0
+     S0005      2000   0.034403     0       0
+     S0006      2000   0.670542     1       1
+     S0007      2000   0.622397     1       1
+     S0008      2000   0.609666     1       1
+     S0009      2000   0.512508     1       0
+     S0010      2000   0.957340     1       1
+     S0011      2000   0.929815     1       1
+     S0012      2000   0.937451     1       1
+     S0013      2000   0.680953     1       0
+     S0014      2000   0.794506     1       1
+     S0015      2000   0.078721     0       0
+     S0016      2000   0.676936     1       1
+
+  Bootstrap CI (resampling PATIENTS, N=17):
+           metric    point   ci_low  ci_high  n_valid  n_boot  n_patients
+          roc_auc 0.861111 0.611111      1.0     2000    2000          17
+balanced_accuracy 0.812500 0.642857      1.0     2000    2000          17
+      sensitivity 1.000000 1.000000      1.0     2000    2000          17
+      specificity 0.625000 0.285714      1.0     2000    2000          17
+
+  Fold variance (LOPO; epoch AUC is NaN by design -> n_folds=0):
+                 metric     mean      std      min     max  n_folds
+          epoch_roc_auc      NaN      NaN      NaN     NaN        0
+         epoch_accuracy 0.721382 0.222599 0.286500 0.98400       17
+epoch_balanced_accuracy      NaN      NaN      NaN     NaN        0
+         mean_prob_good 0.557529 0.306357 0.019473 0.95734       17
+
+  Calibration: {'brier_score': 0.12540824889206725, 'expected_calibration_error': 0.07292709790188126, 'n_patients': 17, 'n_bins': 4, 'mean_predicted_prob': 0.5575285101839361, 'observed_good_rate': 0.5294117647058824}
+ bin  bin_low  bin_high  n_patients  mean_predicted  fraction_good
+   0     0.00      0.25           4        0.095060          0.000
+   1     0.25      0.50           1        0.369324          0.000
+   2     0.50      0.75           8        0.638663          0.625
+   3     0.75      1.00           4        0.904778          1.000
+
+==============================================================================
+[5] Aggregation rules
+==============================================================================
+  rule=         mean: n_rows=17  patient AUC=0.861  balacc=0.812
+  rule=       median: n_rows=17  patient AUC=0.875  balacc=0.812
+  rule=good_fraction: n_rows=17  patient AUC=0.861  balacc=0.812
+  rule= trimmed_mean: n_rows=17  patient AUC=0.861  balacc=0.812
+
+==============================================================================
+[6] Negative control: permutation test (labels shuffled BY PATIENT)
+==============================================================================
+  permutation 25/50 ...
+  permutation 50/50 ...
+Permutation test: observed patient AUC=0.819  null=0.545+-0.191  p=0.1176  (n=50)
+  null AUC mean=0.545 (expected ~0.5), std=0.191, p=0.1176
+  OK: with patient-level shuffled labels performance collapses to chance
+
+==============================================================================
+[7] Negative control: patient-identity probe
+==============================================================================
+Patient-identity probe: accuracy=1.000 (chance=0.059, x17.0)
+  identity accuracy=1.000 vs chance=0.059
+
+==============================================================================
+[8] DELIBERATE LEAK: a feature that encodes the patient label
+==============================================================================
+  leaking column present: 'leak_marker_Fp1' in features = True
+No-leakage check PASSED: 17 folds, 17 patients, zero train/test patient overlap
+PATIENT level (PRIMARY, N=17): AUC=1.000  balacc=1.000  sens=1.000  spec=1.000  brier=0.025
+EPOCH level (secondary, N=34000): AUC=0.986  balacc=0.934
+  patient AUC with leak = 1.000  (clean run = 0.861)
+  OK: the deliberate leak is detected (AUC saturates at ~1.0)
+  NOTE: grouped CV does NOT protect against a feature that encodes the
+        label -- only the permutation test + feature inspection do.
+
+==============================================================================
+ALL CHECKS PASSED in 19.0s
+==============================================================================
