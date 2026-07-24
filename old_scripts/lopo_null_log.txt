@@ -1,0 +1,16 @@
+==============================================================================
+Distribución nula del AUC bajo LOPO (el 'azar' real de este protocolo)
+==============================================================================
+
+observado (LOPO)      : 0.556
+nulo LOPO             : media=0.388  sd=0.171  mediana=0.389  n=100
+percentiles nulo      : p5=0.124  p50=0.389  p95=0.683
+p-valor empírico      : 0.1782
+(164s)
+
+distribución nula LOPO -> data_processed/lopo_null_aucs.npy
+
+LECTURA:
+  El centro de la nula LOPO es la referencia honesta de 'azar' para este
+  protocolo — NO el 0.5 teórico. El observado se juzga contra ESA nula.
+  -> El observado NO supera el percentil 95 de la nula: sin evidencia de señal.

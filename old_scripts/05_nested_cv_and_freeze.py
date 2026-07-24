@@ -94,6 +94,12 @@ print(f"    permutación: observado={perm['observed_auc']:.3f}  "
       f"p={perm['p_value']:.4f}  (n={perm['n_permutations']}, "
       f"{time.perf_counter() - t0:.1f}s)")
 
+# Persistimos las AUC nulas: sin ellas, el notebook solo puede dibujar una
+# APROXIMACIÓN normal de la distribución nula. Con ellas se dibuja la nula real,
+# que es la evidencia que respalda el p-valor ante el jurado.
+np.save("data_processed/permutation_null_aucs.npy", np.asarray(perm["null_aucs"]))
+print(f"    distribución nula guardada -> data_processed/permutation_null_aucs.npy")
+
 probe = val.patient_identity_probe(Xs, gs, verbose=False)
 print(f"    sonda de identidad: accuracy={probe['accuracy']:.3f} "
       f"(x{probe['ratio_over_chance']:.1f} sobre azar)")

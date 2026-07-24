@@ -15,12 +15,17 @@ aquí se CONSUME, no se reimplementa.
 -----------------------------------------------------------------------------
 LAS TRES RESTRICCIONES QUE DEFINEN EL DISEÑO (medidas, no supuestas)
 -----------------------------------------------------------------------------
-1. MÁS ÉPOCAS NO ES MÁS INFORMACIÓN. En simulación con la misma señal
-   inyectada, 2000 épocas/paciente dieron AUC 0.54 frente a 0.83 con 400.
-   Con 16 pacientes de entrenamiento y miles de épocas cada uno, el modelo
-   aprende la HUELLA de cada paciente, y esa dirección no generaliza al 17º.
-   El N efectivo del problema es 17, no 34 000. -> el nº de épocas por
-   paciente es un HIPERPARÁMETRO, y menos suele ser mejor.
+1. EL N EFECTIVO ES 17 PACIENTES, NO 34 000 ÉPOCAS. Las ~2000 épocas de un
+   paciente son casi redundantes entre sí; el contenido informativo real es
+   "17 sujetos". En simulación, con la misma señal inyectada, 2000
+   épocas/paciente dieron AUC 0.54 frente a 0.83 con 400: el modelo aprendía
+   la HUELLA de cada paciente en vez de la señal clínica.
+   ⚠️ ESE EFECTO **NO SE REPRODUJO** EN LOS DATOS REALES (medido el
+   2026-07-23): AUC medio 0.465 (50 ép.) -> 0.455 (200) -> 0.500 (500) ->
+   0.516 (2000), es decir tendencia plana o levemente creciente, y toda ella
+   dentro del ruido. Se mantiene el nº de épocas como HIPERPARÁMETRO y se usan
+   200 por presupuesto de cómputo, pero NO se afirma que menos sea mejor:
+   en datos reales, simplemente da igual.
 
 2. LA IDENTIDAD DEL PACIENTE ES CASI PERFECTAMENTE PREDECIBLE desde las
    features (accuracy 0.983 frente a un azar de 0.059). Existe una huella
@@ -32,6 +37,28 @@ LAS TRES RESTRICCIONES QUE DEFINEN EL DISEÑO (medidas, no supuestas)
    canales no son 19 informaciones independientes. -> promediar cada familia
    sobre los 19 canales (380 -> 20) es barato, muy defendible, y previsiblemente
    mejor que usar las 380 con 17 sujetos.
+
+-----------------------------------------------------------------------------
+⚠️ EL "AZAR" DE LOPO NO ESTÁ EN 0.5, ESTÁ EN ~0.39 (medido, 2026-07-23)
+-----------------------------------------------------------------------------
+En LOPO, `DummyClassifier(strategy="prior")` no da AUC 0.5: da **0.000 exacto**.
+La causa es aritmética. Al dejar fuera a un paciente GOOD, el train queda 8/8 y
+la prior de "good" vale 0.5000; al dejar fuera a uno POOR, queda 9/7 y sube a
+0.5625. Resultado: todos los POOR reciben mayor probabilidad de "good" que todos
+los GOOD -> orden perfectamente invertido -> AUC 0.
+
+Es decir: el propio protocolo LOPO **deprime** el AUC, porque sacar a un paciente
+desbalancea el train en la dirección contraria a su clase. Por eso 55 de las 76
+configuraciones no-dummy del barrido cayeron por debajo de 0.5 (mediana 0.451).
+Es un sesgo CONSERVADOR (a la baja): no infla resultados, los hunde.
+
+CONSECUENCIA PRÁCTICA: comparar el AUC observado contra 0.5 "a ojo" es INCORRECTO
+con este protocolo. La referencia honesta es la distribución nula EMPÍRICA del
+mismo protocolo (barajar etiquetas por paciente y repetir LOPO entero), medida en
+`old_scripts/06_lopo_null_distribution.py`: **media 0.388, sd 0.171, p95 0.683**.
+El AUC observado de 0.556 queda por ENCIMA de ese centro pero MUY dentro del
+ruido (p empírico 0.178). En las figuras, la línea de referencia debe ser esa
+nula, nunca el 0.5 teórico ni el número del dummy.
 
 -----------------------------------------------------------------------------
 LA TRAMPA QUE ESTE MÓDULO NO PUEDE RESOLVER SOLO (hay que declararla)
@@ -319,7 +346,10 @@ def sweep(
                         "patient_balacc": pm.get("balanced_accuracy"),
                         "patient_sens": pm.get("sensitivity"),
                         "patient_spec": pm.get("specificity"),
-                        "patient_brier": pm.get("brier"),
+                        # OJO: la clave que devuelve `patient_level_metrics` es
+                        # `brier_score`, no `brier`. Con `.get("brier")` la columna
+                        # salía 100% vacía sin avisar de nada (fallo silencioso).
+                        "patient_brier": pm.get("brier_score"),
                         "epoch_auc": em.get("roc_auc"),
                         "epoch_balacc": em.get("balanced_accuracy"),
                         "seconds": round(time.perf_counter() - t0, 2),

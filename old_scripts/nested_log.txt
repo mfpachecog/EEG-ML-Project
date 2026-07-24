@@ -24,7 +24,7 @@ No-leakage check PASSED: 17 folds, 17 patients, zero train/test patient overlap
   fold 14: chose hgb_depth3 (inner AUC 0.688)
   fold 15: chose hgb_depth3 (inner AUC 0.683)
   fold 16: chose hgb_depth3 (inner AUC 0.714)
-    (43.8s)
+    (43.0s)
 
     ESTIMACIÓN INSESGADA (nivel paciente, N=17):
       roc_auc              0.556
@@ -50,7 +50,8 @@ hgb_depth3    17
     trimmed_mean   AUC=0.556  balacc=0.625
 
 [3] controles negativos sobre 'hgb_depth3':
-    permutación: observado=0.639  nulo=0.478±0.162  p=0.1592  (n=200, 97.8s)
+    permutación: observado=0.639  nulo=0.478±0.162  p=0.1592  (n=200, 97.9s)
+    distribución nula guardada -> data_processed/permutation_null_aucs.npy
     sonda de identidad: accuracy=0.983 (x16.7 sobre azar)
 
 [4] calibración: Brier=0.252  ECE=0.168  (prob. media predicha=0.642 vs tasa real de good=0.529)
