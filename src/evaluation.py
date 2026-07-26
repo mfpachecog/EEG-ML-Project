@@ -325,6 +325,55 @@ def align_features_to_frozen(df: pd.DataFrame, card: dict) -> np.ndarray:
 # 4. LA EVALUACIÓN — UNA SOLA PASADA
 # =============================================================================
 
+def exact_auc_null(y_true: np.ndarray, observed_auc: float) -> dict:
+    """Distribución nula EXACTA del AUC para esta fase, por enumeración completa.
+
+    POR QUÉ NO SIRVE LA NULA LOPO (0.388) AQUÍ — finding 028 §4bis
+    ---------------------------------------------------------------
+    El 0.388 se midió para el protocolo LOPO de la Fase 4, donde dejar un
+    paciente fuera desbalancea el entrenamiento y deprime el AUC ≈0.11 de forma
+    sistemática. En la Fase 5 ese mecanismo NO existe: el modelo está congelado
+    y se aplica a sujetos independientes sin reentrenar. Bajo la hipótesis nula
+    el AUC esperado es 0.5 exacto. Usar 0.388 pondría una vara artificialmente
+    baja y SOBREVENDERÍA el resultado.
+
+    CÓMO SE CALCULA: con n1 positivos y n2 negativos, el AUC bajo permutación de
+    etiquetas es el estadístico U de Mann-Whitney. Con cohortes de este tamaño
+    las C(n, n1) asignaciones posibles se enumeran TODAS — no se simula, así que
+    la nula es exacta y reproducible sin semilla.
+    """
+    from itertools import combinations
+    from math import comb
+
+    n = int(len(y_true))
+    n_pos = int(np.sum(y_true == 1))
+    n_neg = n - n_pos
+    if not n_pos or not n_neg:
+        return {"applicable": False, "reason": "una sola clase presente"}
+
+    n_comb = comb(n, n_pos)
+    if n_comb > 500_000:  # salvaguarda: con cohortes mayores, enumerar sería caro
+        return {"applicable": False, "reason": f"C({n},{n_pos})={n_comb} demasiado grande"}
+
+    ranks = range(n)
+    aucs = np.empty(n_comb, dtype=float)
+    for i, pos in enumerate(combinations(ranks, n_pos)):
+        posset = set(pos)
+        aucs[i] = sum(1 for p in pos for q in ranks if q not in posset and p > q)
+    aucs /= n_pos * n_neg
+    aucs.sort()
+
+    return {
+        "applicable": True,
+        "n_permutations": n_comb,
+        "mean": float(aucs.mean()),          # 0.5 exacto
+        "sd": float(aucs.std()),
+        "p95": float(np.percentile(aucs, 95)),
+        "auc_needed_to_beat_chance": float(np.percentile(aucs, 95)),
+        "p_value_one_sided": float(np.mean(aucs >= observed_auc)),
+    }
+
+
 def evaluate_held_out(
     features_path: Path = HELD_OUT_FEATURES_PATH,
     n_boot: int = 2000,
@@ -372,10 +421,9 @@ def evaluate_held_out(
     ci = val.bootstrap_ci_patient_level(
         patient_df, n_boot=n_boot, threshold=threshold
     )
-    calibration = val.calibration_report(
-        patient_df["y_true"].to_numpy(dtype=int),
-        patient_df["prob_good"].to_numpy(dtype=float),
-    )
+    # `calibration_report` espera el DataFrame de paciente (no arrays sueltos) y
+    # devuelve la tupla (resumen, curva). Pasarle arrays lanzaba IndexError.
+    calibration, calibration_curve = val.calibration_report(patient_df)
 
     # --- Paso 7: la referencia de azar CORRECTA ------------------------------
     null = card.get("lopo_null_distribution", {})
@@ -385,6 +433,8 @@ def evaluate_held_out(
     z_vs_null = (
         (observed_auc - null_mean) / null_sd if np.isfinite(null_sd) and null_sd else float("nan")
     )
+    # La vara correcta de esta fase, enumerada exactamente (finding 028 §4bis).
+    exact_null = exact_auc_null(patient_df["y_true"].to_numpy(dtype=int), observed_auc)
 
     results = {
         "n_patients": int(len(patient_df)),
@@ -396,10 +446,17 @@ def evaluate_held_out(
         "bootstrap_ci": ci.to_dict(orient="records"),
         "calibration": calibration if isinstance(calibration, dict) else None,
         "chance_reference": {
-            "lopo_null_mean": null_mean,
-            "lopo_null_sd": null_sd,
-            "z_vs_lopo_null": z_vs_null,
-            "warning": card.get("chance_reference_warning", card.get("chance_level_warning", "")),
+            # La nula EXACTA de esta fase: la vara correcta (finding 028 §4bis).
+            "exact_null": exact_null,
+            # Se conserva la nula LOPO solo por trazabilidad; NO aplica aquí.
+            "lopo_null_mean_NOT_APPLICABLE": null_mean,
+            "lopo_null_sd_NOT_APPLICABLE": null_sd,
+            "z_vs_lopo_null_NOT_APPLICABLE": z_vs_null,
+            "note": (
+                "El azar de la Fase 5 es 0.5 (modelo congelado sobre sujetos "
+                "independientes, sin reentrenamiento). La nula LOPO de 0.388 "
+                "pertenece al protocolo de la Fase 4 y NO debe usarse aquí."
+            ),
         },
         "development_comparison": {
             "nested_cv_patient_auc": card.get("nested_cv_patient_metrics", {}).get("roc_auc"),
@@ -440,11 +497,20 @@ def _print_report(patient_df: pd.DataFrame, results: dict, ci: pd.DataFrame) -> 
     print("\n--- bootstrap CI (patients resampled, NOT epochs) ---")
     print(ci.to_string(index=False))
 
-    print("\n--- chance reference ---")
-    print(f"  LOPO null mean : {ref['lopo_null_mean']}  (sd {ref['lopo_null_sd']})")
-    print(f"  observed AUC   : {m['roc_auc']}")
-    print(f"  z vs LOPO null : {ref['z_vs_lopo_null']}")
-    print("  !! chance for this protocol is ~0.388, NOT 0.5 -- do not compare against 0.5")
+    print("\n--- chance reference (exact null for THIS phase) ---")
+    ex = ref.get("exact_null", {})
+    print(f"  observed AUC        : {m['roc_auc']}")
+    if ex.get("applicable"):
+        print(f"  null mean / sd      : {ex['mean']:.4f} / {ex['sd']:.4f}"
+              f"   ({ex['n_permutations']} exact permutations)")
+        print(f"  AUC needed (p95)    : {ex['auc_needed_to_beat_chance']:.4f}")
+        print(f"  exact p-value       : {ex['p_value_one_sided']:.4f}  (one-sided)")
+        beats = m["roc_auc"] >= ex["auc_needed_to_beat_chance"]
+        print(f"  beats chance?       : {'YES' if beats else 'NO'}")
+    else:
+        print(f"  exact null not computed: {ex.get('reason')}")
+    print("  !! chance HERE is 0.5 (frozen model, independent subjects).")
+    print("     The 0.388 LOPO null belongs to Phase 4 and does NOT apply.")
 
     dev = results["development_comparison"]
     print("\n--- development vs held-out ---")
