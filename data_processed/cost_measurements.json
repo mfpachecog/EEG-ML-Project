@@ -1,0 +1,66 @@
+{
+  "measured_at": "2026-09-23 20:39:15",
+  "machine": {
+    "cpu_model": "AMD Ryzen 5 PRO 5650U with Radeon Graphics",
+    "physical_cores": 6,
+    "logical_cores": 12,
+    "ram_gb": 27.2,
+    "os": "Linux 6.12.108-1-MANJARO",
+    "python": "3.12.13",
+    "numpy": "2.4.3",
+    "scikit_learn": "1.8.0",
+    "mne": "1.11.0",
+    "graphics_hardware": "07:00.0 VGA compatible controller: Advanced Micro Devices, Inc. [AMD/ATI] Cezanne [Radeon Vega Series / Radeon Vega Mobile Series] (rev d2)"
+  },
+  "A": [
+    {
+      "patient": "0284",
+      "n_epochs": 2000,
+      "n_features": 380,
+      "preprocessing_s": 59.87,
+      "feature_extraction_s": 4.21,
+      "total_s": 64.08,
+      "peak_rss_mb": 3470.6
+    },
+    {
+      "patient": "0284",
+      "n_epochs": 2000,
+      "n_features": 380,
+      "preprocessing_s": 59.11,
+      "feature_extraction_s": 4.19,
+      "total_s": 63.3,
+      "peak_rss_mb": 3470.4
+    },
+    {
+      "patient": "0284",
+      "n_epochs": 2000,
+      "n_features": 380,
+      "preprocessing_s": 58.6,
+      "feature_extraction_s": 4.19,
+      "total_s": 62.79,
+      "peak_rss_mb": 3470.6
+    }
+  ],
+  "B": {
+    "rows": 3400,
+    "columns_in": 380,
+    "fit_repeats": 10,
+    "fit_median_s": 0.148,
+    "fit_min_s": 0.147,
+    "fit_max_s": 0.155,
+    "nested_cv_s": 71.4,
+    "nested_cv_auc_check": 0.5556,
+    "rss_after_loading_data_mb": 563.8,
+    "peak_rss_mb": 607.6
+  },
+  "C": {
+    "patient": "0284",
+    "epochs": 200,
+    "predict_repeats": 100,
+    "predict_median_ms": 3.04,
+    "predict_max_ms": 4.63,
+    "patient_prob_good": 0.8702,
+    "model_file_kb": 265.4,
+    "peak_rss_mb": 560.7
+  }
+}
