@@ -33,7 +33,9 @@ LAS TRES RESTRICCIONES QUE DEFINEN EL DISEÑO (medidas, no supuestas)
    FUERTE y reducción de dimensionalidad agresiva.
 
 3. HAY REDUNDANCIA MASIVA: 20 pares de features con |rho| > 0.9, y la
-   correlación mediana entre canales de una misma familia es ~0.82. Los 19
+   correlación mediana entre canales de una misma familia es 0.76 (medido el
+   2026-09-23 sobre las 34 000 épocas; >0.5 en 18 de 20, máx. 0.82; la
+   asimetría es la excepción, ~0). Los 19
    canales no son 19 informaciones independientes. -> promediar cada familia
    sobre los 19 canales (380 -> 20) es barato, muy defendible, y previsiblemente
    mejor que usar las 380 con 17 sujetos.
@@ -155,7 +157,7 @@ class ChannelAggregator(BaseEstimator, TransformerMixin):
     transformador agrupa por familia y devuelve una columna por familia.
 
     POR QUÉ ES BUENA IDEA AQUÍ: la correlación mediana entre canales de una
-    misma familia es ~0.82, así que los 19 canales aportan mucha menos
+    misma familia es 0.76 (>0.5 en 18 de 20; medido el 2026-09-23), así que los 19 canales aportan mucha menos
     información independiente de lo que su número sugiere. Con solo 17 sujetos
     efectivos, pasar de 380 a 20 dimensiones reduce drásticamente el espacio en
     el que el modelo puede sobreajustar la huella individual del paciente.
