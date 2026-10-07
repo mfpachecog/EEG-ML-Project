@@ -302,7 +302,7 @@ def figura_2_escala_cpc() -> None:
 # =============================================================================
 
 def figura_3_flujo_pacientes(cohort: pd.DataFrame) -> None:
-    """Diagrama de flujo: 35 descargados -> 20 + 15 -> 3 excluidos -> 17 finales."""
+    """Diagrama de flujo: 35 descargados -> 20 + 15 -> 3 + 1 excluidos -> 17 + 14 finales."""
     dev = cohort[cohort["group"] == "desarrollo"]
     held = cohort[cohort["group"] == "held-out"]
     excl = cohort[cohort["group"] == "excluido"].sort_values("patient")
@@ -336,34 +336,47 @@ def figura_3_flujo_pacientes(cohort: pd.DataFrame) -> None:
     _arrow(ax, (0.40, 0.895), (0.22, 0.787))
     _arrow(ax, (0.60, 0.895), (0.78, 0.787))
 
-    # Nivel 3: la exclusion por ventana, que solo afecta al conjunto de desarrollo.
-    # La caja se dimensiona con holgura suficiente para las seis lineas de texto.
-    motivos = "\n".join(
-        f"{row.patient} (CPC {int(row.cpc)}) — termina en la hora {int(row.h_max)}"
+    # Nivel 3: cada conjunto se parte en usados y excluidos por el MISMO motivo
+    # (ningun segmento dentro de la ventana de 24 a 72 h). El diseno es simetrico
+    # a proposito: antes solo se dibujaba la exclusion de desarrollo y el 0356
+    # quedaba relegado a una nota al pie.
+    held_used = held[held["h_min"].notna()]
+    held_excl = held[held["h_min"].isna()].sort_values("patient")
+    assert len(held_used) == 14 and list(held_excl["patient"]) == ["0356"], (
+        "el conjunto de prueba externo ya no reproduce 14 usados + 0356 excluido"
+    )
+    n_used_fav = int((held_used["outcome"] == "Good").sum())
+
+    motivos_dev = "\n".join(
+        f"{row.patient} · CPC {int(row.cpc)} · hasta la hora {int(row.h_max)}"
         for row in excl.itertuples()
     )
-    _box(ax, 0.500, 0.300, 0.475, 0.275,
-         "3 excluidos: ningún segmento dentro\nde la ventana de 24 a 72 horas\n\n" + motivos,
-         "#faf3f3", "#d03b3b", fontsize=6.4)
-
-    _arrow(ax, (0.25, 0.660), (0.25, 0.578))
-    _arrow(ax, (0.335, 0.438), (0.490, 0.438))
-    ax.text(0.412, 0.462, "se retiran 3", ha="center", va="bottom",
-            fontsize=6.2, color=MUTED)
-
-    # Nivel 4: el conjunto final que se usa en todo el trabajo.
-    _box(ax, 0.025, 0.300, 0.31, 0.275,
+    _box(ax, 0.020, 0.300, 0.205, 0.275,
          f"{len(dev)} PACIENTES DE\nDESARROLLO\n\n"
          f"{n_dev_fav} favorables\n{len(dev) - n_dev_fav} desfavorables",
          "#eaf2fd", BLUE, fontsize=7.0)
+    _box(ax, 0.270, 0.300, 0.205, 0.275,
+         f"{len(excl)} excluidos:\nningún segmento\nen la ventana\n\n" + motivos_dev,
+         "#faf3f3", "#d03b3b", fontsize=5.2)
+    _box(ax, 0.525, 0.300, 0.205, 0.275,
+         "1 excluido:\nningún segmento\nen la ventana\n\n0356 · CPC 5 · único EEG\nen la hora 3",
+         "#faf3f3", "#d03b3b", fontsize=5.2)
+    _box(ax, 0.775, 0.300, 0.205, 0.275,
+         f"{len(held_used)} PACIENTES DE\nPRUEBA EXTERNA\n\n"
+         f"{n_used_fav} favorables\n{len(held_used) - n_used_fav} desfavorables",
+         "#fdf0ea", ORANGE, fontsize=7.0)
 
-    # Pie: dos notas que el diagrama por si solo no puede transmitir.
+    _arrow(ax, (0.12, 0.660), (0.12, 0.578))
+    _arrow(ax, (0.36, 0.660), (0.372, 0.578))
+    _arrow(ax, (0.64, 0.660), (0.628, 0.578))
+    _arrow(ax, (0.88, 0.660), (0.88, 0.578))
+
+    # Pie: lo que el diagrama por si solo no puede transmitir.
     ax.text(
         0.025, 0.205,
-        "· El balance 10 / 10 del conjunto inicial fue una elección deliberada del autor durante la descarga.\n"
-        "  Al excluir 3 pacientes (1 favorable y 2 desfavorables) quedó en 9 / 8.\n"
-        "· De los 15 de prueba externa, el paciente 0356 no tiene ningún archivo de EEG en disco:\n"
-        "  quedan 14 realmente utilizables.",
+        "· El balance 10 / 10 del conjunto inicial se eligió de forma deliberada durante la descarga.\n"
+        f"  Al excluir {len(excl)} pacientes quedó en {n_dev_fav} / {len(dev) - n_dev_fav}; "
+        f"la prueba externa quedó en {n_used_fav} / {len(held_used) - n_used_fav}.",
         ha="left", va="top", fontsize=6.2, color=INK_2, linespacing=1.6,
     )
 
@@ -455,13 +468,15 @@ def figura_5_caracterizacion_clinica(cohort: pd.DataFrame) -> None:
     en desarrollo y la aparicion del hospital D unicamente en la prueba externa.
     """
     dev = cohort[cohort["group"] == "desarrollo"]
-    held = cohort[cohort["group"] == "held-out"]
+    # Solo los 14 evaluados: el 0356 no tiene EEG en la ventana y se describe aparte,
+    # igual que los 3 excluidos de desarrollo no entran en `dev`.
+    held = cohort[(cohort["group"] == "held-out") & cohort["h_min"].notna()]
     # Etiquetas cortas de dos lineas: los nombres completos se solapaban en los ejes
     # estrechos de los paneles a y b.
     sets = [("Desa-\nrrollo", dev, BLUE), ("Prueba\nexterna", held, ORANGE)]
 
     fig, (ax_age, ax_sex, ax_hosp) = plt.subplots(
-        1, 3, figsize=(TEXT_WIDTH_IN, 2.5), gridspec_kw={"wspace": 0.45, "width_ratios": [1, 0.68, 1.38]}
+        1, 3, figsize=(TEXT_WIDTH_IN, 2.5), gridspec_kw={"wspace": 0.5, "width_ratios": [1, 0.9, 1.3]}
     )
 
     # --- a) Edad: un punto por paciente, mas la media -------------------------
@@ -484,20 +499,20 @@ def figura_5_caracterizacion_clinica(cohort: pd.DataFrame) -> None:
     ax_age.set_axisbelow(True)
     _despine(ax_age)
 
-    # --- b) Sexo: proporcion de hombres, con el conteo escrito ----------------
+    # --- b) Proporcion de hombres, con el conteo escrito ----------------
     for i, (label, subset, color) in enumerate(sets):
         n_male = int((subset["sex"] == "Male").sum())
         pct = 100 * n_male / len(subset)
         ax_sex.bar(i, pct, width=0.5, color=color, zorder=3)
-        ax_sex.text(i, pct + 2.5, f"{n_male} de {len(subset)}", ha="center", va="bottom",
-                    fontsize=6.8, color=INK, fontweight="bold")
+        ax_sex.text(i, pct + 2.5, f"{n_male}\nde {len(subset)}", ha="center", va="bottom",
+                    fontsize=6.0, linespacing=1.1, color=INK, fontweight="bold")
 
     ax_sex.set_xticks(range(len(sets)))
     ax_sex.set_xticklabels([label for label, _, _ in sets])
     ax_sex.set_xlim(-0.6, len(sets) - 0.4)
     ax_sex.set_ylim(0, 100)
     ax_sex.set_ylabel("hombres (%)")
-    ax_sex.set_title("b) Sexo", loc="left", color=INK, pad=5)
+    ax_sex.set_title("b) Proporción\nde hombres", loc="left", color=INK, pad=5)
     ax_sex.grid(axis="y", color=GRID, linewidth=0.7)
     ax_sex.set_axisbelow(True)
     _despine(ax_sex)
@@ -540,7 +555,7 @@ def figura_5_caracterizacion_clinica(cohort: pd.DataFrame) -> None:
     # Leyenda unica para los tres paneles: el color significa lo mismo en todos.
     handles = [plt.Rectangle((0, 0), 1, 1, color=color) for _, _, color in sets]
     fig.legend(
-        handles, ["conjunto de desarrollo (17)", "conjunto de prueba externa (15)"],
+        handles, [f"conjunto de desarrollo ({len(dev)})", f"conjunto de prueba externa ({len(held)})"],
         loc="lower center", ncol=2, bbox_to_anchor=(0.5, -0.13),
     )
 

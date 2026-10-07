@@ -74,7 +74,7 @@ MAX_EPOCHS_PER_PATIENT = 2000
 # Para NO procesar los 59 segmentos y botar casi todo, acotamos ANTES cuántos segmentos
 # tocamos: procesamos solo los suficientes (espaciados) para reunir el cap con margen.
 # Ahorra cómputo además de disco. Estimación deliberadamente conservadora:
-_EPOCHS_PER_SEGMENT_EST = 250  # épocas ~esperadas por segmento tras re-muestreo (~52 min / 10 s)
+_EPOCHS_PER_SEGMENT_EST = 250  # épocas ~esperadas por segmento (250 × 10 s ≈ 42 min; medido en 0284: ~47 min/segmento)
 _SEGMENT_SAFETY = 2            # margen x2 por segmentos cortos o épocas rechazadas
 
 # Mapa de nomenclatura moderna -> antigua (misma convención que el script 03).
