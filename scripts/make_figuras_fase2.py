@@ -100,8 +100,10 @@ def figura_12_pipeline() -> None:
 
 def figura_13_flujo_uci() -> None:
     fig, ax = plt.subplots(figsize=(TEXT_WIDTH_IN, 3.9))
-    ax.set_xlim(0, 1)
-    ax.set_ylim(0, 1)
+    # Margen a proposito: el `pad` del recuadro redondeado saca los bordes de las cajas
+    # extremas (x = 0.01 y x = 0.99) fuera de [0, 1], y matplotlib los recortaba.
+    ax.set_xlim(-0.02, 1.02)
+    ax.set_ylim(-0.02, 1.02)
     ax.axis("off")
     fs = 6.2
 

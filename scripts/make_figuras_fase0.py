@@ -406,9 +406,23 @@ def figura_4_distribucion_cpc(cohort: pd.DataFrame) -> None:
         gridspec_kw={"wspace": 0.16},
     )
 
+    # Mismo criterio que las figuras 3 y 5: la prueba externa cuenta solo a los 14
+    # evaluados; el 0356 (sin EEG en la ventana) pasa al panel de excluidos junto a
+    # los 3 de desarrollo, para que ningun paciente desaparezca de la figura.
+    held_eval = cohort["group"].eq("held-out") & cohort["h_min"].notna()
+    held_excl = cohort["group"].eq("held-out") & cohort["h_min"].isna()
+    subsets = {
+        "desarrollo": cohort[cohort["group"] == "desarrollo"],
+        "held-out": cohort[held_eval],
+        "excluido": cohort[cohort["group"].eq("excluido") | held_excl],
+    }
+    assert [len(subsets[k]) for k, _ in groups] == [17, 14, 4], (
+        "la cohorte ya no reproduce 17 desarrollo + 14 prueba externa + 4 excluidos"
+    )
+
     y_max = 9
     for ax, (key, title) in zip(axes, groups):
-        subset = cohort[cohort["group"] == key]
+        subset = subsets[key]
         counts = [int((subset["cpc"] == level).sum()) for level in cpc_levels]
 
         # Sombreado de la zona frontera (CPC 2 y 3), por detras de las barras.
@@ -499,20 +513,27 @@ def figura_5_caracterizacion_clinica(cohort: pd.DataFrame) -> None:
     ax_age.set_axisbelow(True)
     _despine(ax_age)
 
-    # --- b) Proporcion de hombres, con el conteo escrito ----------------
+    # --- b) Sexo: barra apilada hombres + mujeres ----------------------------
+    # Se dibujan los dos sexos y no solo la proporcion de hombres: con un unico tramo
+    # el lector entendia que solo se habian escogido hombres (comentario del consultor).
     for i, (label, subset, color) in enumerate(sets):
         n_male = int((subset["sex"] == "Male").sum())
-        pct = 100 * n_male / len(subset)
-        ax_sex.bar(i, pct, width=0.5, color=color, zorder=3)
-        ax_sex.text(i, pct + 2.5, f"{n_male}\nde {len(subset)}", ha="center", va="bottom",
-                    fontsize=6.0, linespacing=1.1, color=INK, fontweight="bold")
-
+        n_female = int((subset["sex"] == "Female").sum())
+        assert n_male + n_female == len(subset), "hay pacientes sin sexo registrado"
+        pct_male = 100 * n_male / len(subset)
+        pct_female = 100 - pct_male
+        ax_sex.bar(i, pct_male, width=0.55, color=color, zorder=3)
+        ax_sex.bar(i, pct_female, bottom=pct_male, width=0.55, color=color, alpha=0.3, zorder=3)
+        ax_sex.text(i, pct_male / 2, f"H\n{n_male}", ha="center", va="center",
+                    fontsize=6.2, linespacing=1.1, color="white", fontweight="bold", zorder=4)
+        ax_sex.text(i, pct_male + pct_female / 2, f"M\n{n_female}", ha="center", va="center",
+                    fontsize=6.2, linespacing=1.1, color=INK, fontweight="bold", zorder=4)
     ax_sex.set_xticks(range(len(sets)))
     ax_sex.set_xticklabels([label for label, _, _ in sets])
     ax_sex.set_xlim(-0.6, len(sets) - 0.4)
     ax_sex.set_ylim(0, 100)
-    ax_sex.set_ylabel("hombres (%)")
-    ax_sex.set_title("b) Proporción\nde hombres", loc="left", color=INK, pad=5)
+    ax_sex.set_ylabel("pacientes (%)")
+    ax_sex.set_title("b) Sexo\n(H hombres, M mujeres)", loc="left", color=INK, pad=5, fontsize=7.5)
     ax_sex.grid(axis="y", color=GRID, linewidth=0.7)
     ax_sex.set_axisbelow(True)
     _despine(ax_sex)
