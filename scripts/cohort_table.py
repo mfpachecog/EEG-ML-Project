@@ -78,7 +78,7 @@ def _segment_hours(patient_dir: Path) -> list[int]:
 
 
 def _group_of(patient_id: str) -> str:
-    """Asigna cada paciente a su conjunto: excluido, prueba externa o desarrollo."""
+    """Asigna cada paciente a su conjunto: excluido, prueba retenida o desarrollo."""
     if patient_id in EXCLUDED_PATIENTS:
         return "excluido"
     if patient_id in HELD_OUT_PATIENTS:

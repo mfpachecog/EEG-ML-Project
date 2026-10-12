@@ -38,7 +38,7 @@ OUTPUT_PATH = (
 # Traducciones al español: el destino es el documento de tesis, no el código.
 GROUP_LABEL = {
     "desarrollo": "Desarrollo",
-    "held-out": "Prueba externa",
+    "held-out": "Prueba retenida",
     "excluido": "Excluido",
 }
 OUTCOME_LABEL = {"Good": "Favorable", "Poor": "Desfavorable"}
@@ -67,11 +67,11 @@ def build_table(cohort) -> str:
     rows = []
     for _, r in cohort.sort_values("patient").iterrows():
         group_label = GROUP_LABEL.get(r["group"], r["group"])
-        # Un paciente de prueba externa sin segmentos en la ventana (el 0356) se
+        # Un paciente de prueba retenida sin segmentos en la ventana (el 0356) se
         # excluye por el mismo motivo que los 3 de desarrollo; se marca aqui para que
         # la tabla no lo cuente entre los 14 evaluados.
         if r["group"] == "held-out" and r["n_segments_in_window"] == 0:
-            group_label = "Prueba externa (excluido)"
+            group_label = "Prueba retenida (excluido)"
         rows.append(
             " & ".join(
                 [
@@ -91,14 +91,14 @@ def build_table(cohort) -> str:
     caption = (
         "Los 35 pacientes descargados, ordenados por identificador. La tabla permite "
         "comprobar dos afirmaciones del texto. La primera es que los conjuntos de "
-        "desarrollo y de prueba externa no ocupan tramos separados de la base de datos, "
+        "desarrollo y de prueba retenida no ocupan tramos separados de la base de datos, "
         "sino que sus identificadores aparecen entremezclados a lo largo de todo el rango. "
         "La segunda es que los nueve pacientes cuyo nivel de CPC es 2 o 3, resaltados en "
         "negrita y vecinos de la línea de corte entre desenlace favorable y desfavorable, "
         "pertenecen todos al conjunto de desarrollo. La última columna indica cuántos "
         "segmentos de cada paciente caen dentro de la ventana de 24 a 72 horas; en los tres "
-        "pacientes excluidos de desarrollo y en el paciente 0356 de prueba externa ese número "
-        "es cero. En los demás pacientes de prueba externa esa "
+        "pacientes excluidos de desarrollo y en el paciente 0356 de prueba retenida ese número "
+        "es cero. En los demás pacientes de prueba retenida esa "
         "cantidad está limitada por la descarga reducida y no por la duración real del registro."
     )
     short_caption = "Los 35 pacientes descargados y su reparto entre conjuntos"
